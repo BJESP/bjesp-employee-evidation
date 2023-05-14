@@ -3,8 +3,10 @@ package com.example.demo.service;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.hibernate.id.GUIDGenerator;
 
 import java.util.Properties;
+import java.util.UUID;
 
 public class EmailService {
 
@@ -32,8 +34,8 @@ public class EmailService {
                 return new PasswordAuthentication(username, password);
             }
         };
-        Session session = Session.getInstance(props, authenticator);
 
+        Session session = Session.getInstance(props, authenticator);
         try {
             //create a MimeMessage object
             Message message = new MimeMessage(session);
@@ -45,12 +47,17 @@ public class EmailService {
             //set email subject field
             message.setSubject("Here comes Jakarta Mail!");
             //set the content of the email message
-            message.setText("https://localhost:8080/login?token=123123");
+            message.setContent("<p>Click the following link to log in:</p><br><p><a href=\\\"https://localhost:8443/login?token=" + generateToken() + ">Log in</a></p>", "text/html");
             //send the email message
             Transport.send(message);
             System.out.println("Email Message Sent Successfully");
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String generateToken() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
     }
 }
