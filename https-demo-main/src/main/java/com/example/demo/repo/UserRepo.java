@@ -8,7 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Scope("singleton")
 public interface UserRepo extends JpaRepository<User, Long> {
-    User findByUsername(String username );
+    User findByUsername(String username);
+    User findByEmail(String email);
     Boolean existsByEmail(String email);
     Boolean existsByUsername(String username);
 
