@@ -34,7 +34,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public CustomUserDetailsService customUserDetailsService() {
 		return new CustomUserDetailsService();
 	};*/
-	@Autowired
+
 	private TokenUtils tokenUtils;
 	
 	// Registrujemo authentication manager koji ce da uradi autentifikaciju korisnika za nas
