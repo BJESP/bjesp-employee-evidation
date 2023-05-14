@@ -4,18 +4,20 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.hibernate.id.GUIDGenerator;
+import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 import java.util.UUID;
 
+@Service
 public class EmailService {
 
-    public void SendPasswordlessLoginEmail(String email)
+    public void SendPasswordlessLoginEmail(String email, String tokenUUID)
     {
         //provide recipient's email ID
         String to = email;
         //provide sender's email ID
-        String from = "jakartafrom@example.com";
+        String from = "bjesp@example.com";
         //provide Mailtrap's username
         final String username = "06049838345593";
         //provide Mailtrap's password
@@ -47,7 +49,7 @@ public class EmailService {
             //set email subject field
             message.setSubject("Here comes Jakarta Mail!");
             //set the content of the email message
-            message.setContent("<p>Click the following link to log in:</p><br><p><a href=\\\"https://localhost:8443/login?token=" + generateToken() + ">Log in</a></p>", "text/html");
+            message.setContent("<p>Click the following link to log in:</p><br><p><a href=\\\"https://localhost:8443/login?token=" + tokenUUID + ">Log in</a></p>", "text/html");
             //send the email message
             Transport.send(message);
             System.out.println("Email Message Sent Successfully");
@@ -56,8 +58,4 @@ public class EmailService {
         }
     }
 
-    public static String generateToken() {
-        UUID uuid = UUID.randomUUID();
-        return uuid.toString();
-    }
 }
