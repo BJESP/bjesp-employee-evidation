@@ -32,6 +32,9 @@ public class User implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "userEmail", unique = true, nullable = false)
+    private String userEmail;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
