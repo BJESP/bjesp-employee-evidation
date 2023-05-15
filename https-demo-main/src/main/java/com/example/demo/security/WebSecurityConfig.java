@@ -15,6 +15,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.demo.service.CustomUserDetailsService;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -29,13 +30,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Autowired
+	private AuthenticationEntryPointJwt unauthorizedHandler;
+
 	// Servis koji se koristi za citanje podataka o korisnicima aplikacije
 	/*@Bean
 	public CustomUserDetailsService customUserDetailsService() {
 		return new CustomUserDetailsService();
 	};*/
-
+	@Autowired
 	private TokenUtils tokenUtils;
+
 	
 	// Registrujemo authentication manager koji ce da uradi autentifikaciju korisnika za nas
 	@Bean
@@ -43,16 +48,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-	/*@Bean
+	@Autowired
+	private CustomUserDetailsService jwtUserDetailsService;
+	@Bean
 	public TokenAuthenticationFilter authenticationJwtTokenFilter() {
-		return new TokenAuthenticationFilter();
-	}*/
+		return new TokenAuthenticationFilter(tokenUtils,jwtUserDetailsService);
+	}
 	// Definisemo uputstvo za authentication managera koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje,
 	// kao i kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu da bi adekvatan hash koji dobije kao rezultat bcrypt algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		CustomUserDetailsService userDetailsService = new CustomUserDetailsService();
-		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+
+		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
 	}
 
 	// Definisemo prava pristupa odredjenim URL-ovima
@@ -62,14 +69,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.cors().and()	// ukljucuje cors konfiguraciju 
 				// komunikacija izmedju klijenta i servera je stateless posto je u pitanju REST aplikacija
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-
+				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.httpBasic().disable().formLogin().disable()
 				// svim korisnicima dopusti da pristupe putanjama /auth/login
 				.authorizeRequests().antMatchers("/auth/login").permitAll()
 
 				// za svaki drugi zahtev korisnik mora biti autentifikovan
 				.anyRequest().permitAll();
-		
+		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 		http.csrf().disable();
 	}
 

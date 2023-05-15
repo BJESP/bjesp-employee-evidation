@@ -18,10 +18,9 @@ import com.example.demo.repo.UserRepo;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-	protected final Log LOGGER = LogFactory.getLog(getClass());
 
 	@Autowired
-	private UserRepo userRepository;
+	private UserService userService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -29,14 +28,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
+	public CustomUserDetailsService() {
+	}
+
 	// Funkcija koja na osnovu username-a iz baze vraca objekat User-a
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username);
+	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+		User user = userService.findByEmail(email);
 		if (user == null) {
-			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
+			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", email));
 		} else {
-			return user;
+			return (UserDetails) user;
 		}
 	}
 
