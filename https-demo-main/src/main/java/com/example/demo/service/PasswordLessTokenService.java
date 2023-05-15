@@ -4,6 +4,7 @@ import com.example.demo.model.PasswordlessToken;
 import com.example.demo.model.User;
 import com.example.demo.repo.PasswordlessTokenRepo;
 import com.example.demo.repo.UserRepo;
+import org.assertj.core.error.future.Warning;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,16 +26,30 @@ public class PasswordLessTokenService {
     @Autowired
     private EmailService emailService;
 
-    public void CreateNewToken(String username)
-    {
+    public void CreateNewToken(String username) {
         User user = userRepo.findByUsername(username);
-        if(user == null)
+        if (user == null)
         {
-            System.out.println("No user found with username "+ username);
+            System.out.println("No user found with username " + username);
             throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
         }
         else
         {
+            if (passwordlessTokenRepo.existsByUsername(username))
+            {
+                PasswordlessToken passwordlessToken = passwordlessTokenRepo.findByUsername(username);
+                if (passwordlessToken.IsStillValid())
+                {
+                    System.out.println("Token already exists");
+                    throw new UsernameNotFoundException(String.format("Token already sent"));
+                }
+                else
+                {
+                    passwordlessTokenRepo.delete(passwordlessToken);
+                    System.out.println("Brisem stari token!");
+                }
+            }
+
             PasswordlessToken passwordlessToken = new PasswordlessToken(user.getUsername());
             emailService.SendPasswordlessLoginEmail(username, String.valueOf(passwordlessToken.getUuid()));
             passwordlessTokenRepo.save(passwordlessToken);

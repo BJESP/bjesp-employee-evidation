@@ -12,4 +12,8 @@ import java.util.UUID;
 public interface PasswordlessTokenRepo extends JpaRepository<PasswordlessToken, Long>
 {
     PasswordlessToken findByUuid(UUID uuid);
+
+    boolean existsByUsername(String username);
+
+    PasswordlessToken findByUsername(String username);
 }
