@@ -6,12 +6,13 @@ import com.example.demo.repo.RefreshTokenRepo;
 import com.example.demo.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-
+@Service
 public class RefreshTokenService {
     @Value("")
     private Long refreshTokenDurationMs;
