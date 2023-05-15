@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Enumeration;
+
+@Component
 public class TokenUtils {
 
     @Value("spring-security-example")
@@ -20,8 +23,10 @@ public class TokenUtils {
     public String SECRET;
 
     // 18000000 = 5h
-    @Value("18000000")
+    @Value("900000")
     private int EXPIRES_IN;
+
+
 
     @Value("Authorization")
     private String AUTH_HEADER;
@@ -29,9 +34,9 @@ public class TokenUtils {
     private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email) {
         return Jwts.builder()
-                .claim("role", role)
+                //.claim("role", role)
                 .setIssuer(APP_NAME)
                 .setSubject(email)
                 .setAudience("web")
@@ -40,12 +45,24 @@ public class TokenUtils {
                 .signWith(SIGNATURE_ALGORITHM, SECRET).compact();
     }
 
+    public String generateTokenFromEmail(String email) {
+        return Jwts.builder().setSubject(email).setIssuedAt(new Date())
+                .setExpiration(generateExpirationDate()).signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
+    }
+
     private Date generateExpirationDate() {
         return new Date(new Date().getTime() + EXPIRES_IN);
     }
 
     public String getToken(HttpServletRequest request) {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            System.out.println(headerName + ": " + request.getHeader(headerName));
+        }
         String authHeader = getAuthHeaderFromHeader(request);
+        System.out.println(authHeader+"da li je ovo");
         // Bearer sklj.blab.labal
         if (authHeader != null && authHeader.startsWith("Bearer "))
             return authHeader.substring(7);
