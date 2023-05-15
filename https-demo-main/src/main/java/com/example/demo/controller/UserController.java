@@ -12,6 +12,7 @@ import com.example.demo.service.CustomUserDetailsService;
 import com.example.demo.service.PasswordLessTokenService;
 import com.example.demo.service.RefreshTokenService;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +36,8 @@ public class UserController {
     PasswordLessTokenService passwordLessTokenService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private PasswordValidator passwordValidator;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -50,6 +53,8 @@ public class UserController {
 
     @PostMapping(consumes="application/json", value="/register")
     public ResponseEntity<HttpStatus> registerUser(@RequestBody RegistrationDTO data) {
+        if (!passwordValidator.isValid(data.getPassword()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         try {
             userService.registerUser(data);
         } catch (Exception ignored) {
@@ -121,7 +126,7 @@ public class UserController {
     @GetMapping(value="/register/{email}")
     public ResponseEntity<User> emailExists(@PathVariable String email) {
         if (email == null)
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         User user = userService.findByEmail(email);
         if (user==null)
             return null;
