@@ -77,14 +77,14 @@ public class UserController {
     }
 
     @PostMapping(value = "/passwordlesslogin")
-    public ResponseEntity<String> passwordlessLogin(HttpServletRequest request, String username) {
+    public ResponseEntity<String> passwordlessLogin(@RequestBody String username) {
         System.out.println("PasswordlessLogin zapocet!");
         passwordLessTokenService.CreateNewToken(username);
         return new ResponseEntity<>("HTTPS request successfully passed!", HttpStatus.OK);
     }
 
-    @GetMapping(value="/passwordlesslogin/{token}")
-    public ResponseEntity<User> passwordlessLoginWithToken(@PathVariable String token) {
+    @PostMapping(value="/passwordlessloginToken")
+    public ResponseEntity<User> passwordlessLoginWithToken(@RequestBody String token) {
         if (token == null || token.equals(""))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
