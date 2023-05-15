@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 @Service
 public class RefreshTokenService {
-    @Value("")
+    @Value("100000")
     private Long refreshTokenDurationMs;
 
     @Autowired
