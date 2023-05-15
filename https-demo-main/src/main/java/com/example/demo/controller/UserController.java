@@ -132,7 +132,6 @@ public class UserController {
             return null;
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> RefreshTokenFunction( @RequestBody RefreshTokenRequest request) {
         String requestRefreshToken = request.getRefreshToken();
@@ -146,5 +145,20 @@ public class UserController {
                 })
                 .orElseThrow(() -> new RefreshTokenException(requestRefreshToken,
                         "Refresh token is not in database!"));
+    }
+    @PostMapping("/approve/{email}")
+    public ResponseEntity<String> approveUser(@PathVariable String email) {
+        if (email == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        userService.approveRegistrationRequest(email);
+        return new ResponseEntity<>("Registration request approved", HttpStatus.OK);
+    }
+
+    @PostMapping("/deny/{email}")
+    public ResponseEntity<String> denyUser(@PathVariable String email, String reason) {
+        if (email == null)
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        userService.denyRegistrationRequest(email, reason);
+        return new ResponseEntity<>("Registration request denied", HttpStatus.OK);
     }
 }

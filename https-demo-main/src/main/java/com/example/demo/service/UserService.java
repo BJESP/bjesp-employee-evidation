@@ -12,11 +12,13 @@ public class UserService {
 
     private final UserRepo userRepository;
     private final RoleRepo roleRepository;
+    private final  EmailService emailService;
 
-    public UserService(UserRepo userRepository, RoleRepo roleRepository) {
+    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService) {
         this.userRepository = userRepository;
 
         this.roleRepository = roleRepository;
+        this.emailService = emailService;
     }
 
     public User findByUserEmail(String userEmail) {
@@ -45,5 +47,17 @@ public class UserService {
     }
     public User findByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public void approveRegistrationRequest(String email) {
+        User user = userRepository.findByEmail(email);
+        emailService.sendRegistrationEmail(email);
+        userRepository.save(user);
+    }
+
+    public void denyRegistrationRequest(String email, String reason) {
+        User user = userRepository.findByEmail(email);
+        emailService.sendRegistrationDeniedEmail(email, reason);
+        userRepository.save(user);
     }
 }

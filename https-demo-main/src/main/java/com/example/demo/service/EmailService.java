@@ -4,6 +4,10 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.hibernate.id.GUIDGenerator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
@@ -11,6 +15,9 @@ import java.util.UUID;
 
 @Service
 public class EmailService {
+
+    @Autowired
+    private JavaMailSender mailSender;
 
     public void SendPasswordlessLoginEmail(String email, String tokenUUID)
     {
@@ -56,6 +63,31 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
+    }
+    @Async
+    public void sendRegistrationEmail(String toEmail){
+        SimpleMailMessage message=new SimpleMailMessage();
+        message.setFrom("isa.hospitall@gmail.com");
+        message.setTo(toEmail);
+        String body = "Click here to activate your account: https://localhost:8443/auth/confirm-mail/" + toEmail;
+        message.setText(body);
+        message.setSubject("Confirm registration");
+
+        mailSender.send(message);
+
+        System.out.println("mail sent successfully");
+    }
+    @Async
+    public void sendRegistrationDeniedEmail(String toEmail,String reason){
+        SimpleMailMessage message=new SimpleMailMessage();
+        message.setFrom("isa.hospitall@gmail.com");
+        message.setTo(toEmail);
+        message.setText("Rejection reason: " + reason);
+        message.setSubject("Registration denied");
+
+        mailSender.send(message);
+
+        System.out.println("mail sent successfully");
     }
 
 }
