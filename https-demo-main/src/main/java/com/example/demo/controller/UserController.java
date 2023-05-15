@@ -77,11 +77,42 @@ public class UserController {
     }
 
     @PostMapping(value = "/passwordlesslogin")
-    public ResponseEntity<String> passwordlessLogin(HttpServletRequest request, String username) {
+    public ResponseEntity<String> passwordlessLogin(@RequestBody String username) {
         System.out.println("PasswordlessLogin zapocet!");
         passwordLessTokenService.CreateNewToken(username);
         return new ResponseEntity<>("HTTPS request successfully passed!", HttpStatus.OK);
     }
+
+    @PostMapping(value="/passwordlessloginToken")
+    public ResponseEntity passwordlessLoginWithToken(@RequestBody String token) {
+        if (token == null || token.equals(""))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        User user = passwordLessTokenService.loadUserByToken(token);
+        if (user==null)
+        {
+            System.out.println("Nema usera sa tim tokenom!");
+            return null;
+        }
+        else
+        {
+            System.out.println("User " + user.getEmail() +" ulogovan preko passwordlessa!");
+        }
+
+        Authentication authentication = (new UsernamePasswordAuthenticationToken(user.getEmail(), null));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = tokenUtils.generateToken(user.getEmail());
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshTokenPasswordless(user);
+
+        return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), 0L,
+                user.getEmail()));
+
+    }
+
+
     @GetMapping(value="/register/{email}")
     public ResponseEntity<User> emailExists(@PathVariable String email) {
         if (email == null)
