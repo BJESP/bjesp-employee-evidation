@@ -44,6 +44,26 @@ public class UserController {
         passwordLessTokenService.CreateNewToken(username);
         return new ResponseEntity<>("HTTPS request successfully passed!", HttpStatus.OK);
     }
+
+    @GetMapping(value="/passwordlesslogin/{token}")
+    public ResponseEntity<User> passwordlessLoginWithToken(@PathVariable String token) {
+        if (token == null || token.equals(""))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        User user = passwordLessTokenService.loadUserByToken(token);
+        if (user==null)
+        {
+            System.out.println("Nema usera sa tim tokenom!");
+            return null;
+        }
+        else
+        {
+            System.out.println("User " + user.getEmail() +" ulogovan preko passwordlessa!");
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+
     @GetMapping(value="/register/{email}")
     public ResponseEntity<User> emailExists(@PathVariable String email) {
         if (email == null)
