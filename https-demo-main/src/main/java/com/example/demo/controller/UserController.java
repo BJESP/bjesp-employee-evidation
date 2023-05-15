@@ -84,7 +84,7 @@ public class UserController {
     }
 
     @PostMapping(value="/passwordlessloginToken")
-    public ResponseEntity<User> passwordlessLoginWithToken(@RequestBody String token) {
+    public ResponseEntity passwordlessLoginWithToken(@RequestBody String token) {
         if (token == null || token.equals(""))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
@@ -98,7 +98,18 @@ public class UserController {
         {
             System.out.println("User " + user.getEmail() +" ulogovan preko passwordlessa!");
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+
+        Authentication authentication = (new UsernamePasswordAuthenticationToken(user.getEmail(), null));
+
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        String jwt = tokenUtils.generateToken(user.getEmail());
+
+        RefreshToken refreshToken = refreshTokenService.createRefreshTokenPasswordless(user);
+
+        return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), 0L,
+                user.getEmail()));
+
     }
 
 

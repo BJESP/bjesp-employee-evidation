@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.exception.RefreshTokenException;
 import com.example.demo.model.RefreshToken;
+import com.example.demo.model.User;
 import com.example.demo.repo.RefreshTokenRepo;
 import com.example.demo.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,16 @@ public class RefreshTokenService {
         RefreshToken refreshToken = new RefreshToken();
 
         refreshToken.setUser(userRepository.findById(userId).get());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
+        refreshToken.setToken(UUID.randomUUID().toString());
+
+        refreshToken = refreshTokenRepository.save(refreshToken);
+        return refreshToken;
+    }
+    public RefreshToken createRefreshTokenPasswordless(User user) {
+        RefreshToken refreshToken = new RefreshToken();
+
+        refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshTokenDurationMs));
         refreshToken.setToken(UUID.randomUUID().toString());
 
