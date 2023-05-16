@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.LoginDTO;
+import com.example.demo.dto.PasswordlessLoginDTO;
+import com.example.demo.dto.PasswordlessLoginTokenDTO;
 import com.example.demo.dto.RegistrationDTO;
 import com.example.demo.exception.RefreshTokenException;
 import com.example.demo.model.*;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -76,15 +79,17 @@ public class UserController {
                  userDetails.getEmail()));
     }
 
-    @PostMapping(value = "/passwordlesslogin")
-    public ResponseEntity<String> passwordlessLogin(@RequestBody String username) {
+    @PostMapping(consumes="application/json",value = "/passwordlesslogin")
+    public ResponseEntity<String> passwordlessLogin(@RequestBody PasswordlessLoginDTO passwordlessLoginDTO) {
         System.out.println("PasswordlessLogin zapocet!");
-        passwordLessTokenService.CreateNewToken(username);
+        passwordLessTokenService.CreateNewToken(passwordlessLoginDTO.getUsername());
         return new ResponseEntity<>("HTTPS request successfully passed!", HttpStatus.OK);
     }
 
-    @PostMapping(value="/passwordlessloginToken")
-    public ResponseEntity passwordlessLoginWithToken(@RequestBody String token) {
+    @PostMapping(consumes="application/json",value = "/passwordlessloginToken")
+    public ResponseEntity passwordlessLoginToken(@RequestBody PasswordlessLoginTokenDTO passwordlessLoginTokenDTO)
+    {
+        String token = passwordlessLoginTokenDTO.getToken();
         if (token == null || token.equals(""))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 

@@ -49,7 +49,7 @@ public class EmailService {
             //set email subject field
             message.setSubject("Here comes Jakarta Mail!");
             //set the content of the email message
-            message.setContent("<p>Click the following link to log in:</p><br><p><a href=\"https://localhost:8000/auth/passwordlessloginToken/" + tokenUUID + "\">Log in</a></p>", "text/html");
+            message.setContent("<p>Click the following link to log in:</p><br><p><a href=\"" + tokenUUID + "\">Log in</a></p>", "text/html");
             //send the email message
             Transport.send(message);
             System.out.println("Email Message Sent Successfully");
