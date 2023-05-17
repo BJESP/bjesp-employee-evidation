@@ -83,7 +83,7 @@ public class EmailService {
         SimpleMailMessage message=new SimpleMailMessage();
         message.setFrom("isa.hospitall@gmail.com");
         message.setTo(user.getEmail());
-        String verificationLink = "https://localhost:8443/auth/confirm-mail?token=" + secureToken.getToken() + "&hmac=" + hmac;
+        String verificationLink = "https://localhost:8000/auth/confirm-mail?token=" + secureToken.getToken() + "&hmac=" + hmac;
         String body = "Click here to activate your account:" + verificationLink ;
         message.setText(body);
         message.setSubject("Confirm registration");

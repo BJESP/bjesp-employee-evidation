@@ -72,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.httpBasic().disable().formLogin().disable()
 				// svim korisnicima dopusti da pristupe putanjama /auth/login
-				.authorizeRequests().antMatchers("/auth/login").permitAll()
+				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register").permitAll()
 
 				// za svaki drugi zahtev korisnik mora biti autentifikovan
 				.anyRequest().permitAll();
@@ -89,7 +89,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring().antMatchers(HttpMethod.POST, "/auth/login");
 
 		// Ovim smo dozvolili pristup statickim resursima aplikacije
-		web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html",
+		web.ignoring().antMatchers(HttpMethod.GET, "/", "/webjars/**", "/*.html", "favicon.ico", "/**/*.html","/auth/confirm-mail",
 				"/**/*.css", "/**/*.js");
 	}
 
