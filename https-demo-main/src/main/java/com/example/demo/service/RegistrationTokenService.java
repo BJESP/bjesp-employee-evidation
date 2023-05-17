@@ -40,7 +40,6 @@ public class RegistrationTokenService {
         return registrationTokenRepository.findByToken(token);
     }
 
-    //Kad se iskoristi da se obrise
     public void removeToken(RegistrationToken token) {
         registrationTokenRepository.delete(token);
     }

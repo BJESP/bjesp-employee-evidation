@@ -53,6 +53,8 @@ public class UserController {
 
     @PostMapping(consumes="application/json", value="/register")
     public ResponseEntity<HttpStatus> registerUser(@RequestBody RegistrationDTO data) {
+        if(userService.isBlocked(data.getEmail()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         if (!passwordValidator.isValid(data.getPassword()))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         try {
@@ -160,5 +162,15 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         userService.denyRegistrationRequest(email, reason);
         return new ResponseEntity<>("Registration request denied", HttpStatus.OK);
+    }
+
+    @GetMapping(value="/confirm-mail")
+    public ResponseEntity<HttpStatus> activateUserAccount(@RequestParam("token") String token, @RequestParam("hmac") String hmac){
+        try {
+            userService.verifyUser(token, hmac);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

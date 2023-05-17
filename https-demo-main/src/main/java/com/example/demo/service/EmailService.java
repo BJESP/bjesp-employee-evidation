@@ -1,5 +1,9 @@
 package com.example.demo.service;
 
+import com.example.demo.model.RegistrationToken;
+import com.example.demo.model.User;
+import com.example.demo.repo.RegistrationTokenRepo;
+import com.example.demo.utils.HMAC;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -18,6 +22,12 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+    @Autowired
+    private RegistrationTokenService registrationTokenService;
+    @Autowired
+    private RegistrationTokenRepo registrationTokenRepository;
+    @Autowired
+    private HMAC HMACService;
 
     public void SendPasswordlessLoginEmail(String email, String tokenUUID)
     {
@@ -65,11 +75,16 @@ public class EmailService {
         }
     }
     @Async
-    public void sendRegistrationEmail(String toEmail){
+    public void sendRegistrationEmail(User user){
+        RegistrationToken secureToken= registrationTokenService.createSecureToken();
+        secureToken.setUser(user);
+        registrationTokenRepository.save(secureToken);
+        String hmac = HMACService.generateHmac(user.getEmail(), "my_secret_key");
         SimpleMailMessage message=new SimpleMailMessage();
         message.setFrom("isa.hospitall@gmail.com");
-        message.setTo(toEmail);
-        String body = "Click here to activate your account: https://localhost:8443/auth/confirm-mail/" + toEmail;
+        message.setTo(user.getEmail());
+        String verificationLink = "https://localhost:8443/auth/confirm-mail?token=" + secureToken.getToken() + "&hmac=" + hmac;
+        String body = "Click here to activate your account:" + verificationLink ;
         message.setText(body);
         message.setSubject("Confirm registration");
 
