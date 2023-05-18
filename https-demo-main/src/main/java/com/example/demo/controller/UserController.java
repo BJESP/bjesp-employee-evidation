@@ -163,7 +163,7 @@ public class UserController {
         return new ResponseEntity<>("Registration request denied", HttpStatus.OK);
     }
 
-    @GetMapping(value="/confirm-mail")
+    @PostMapping(value="/confirm-mail")
     public ResponseEntity<HttpStatus> activateUserAccount(@RequestParam("token") String token, @RequestParam("hmac") String hmac){
         try {
             userService.verifyUser(token, hmac);
@@ -194,5 +194,32 @@ public class UserController {
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees(HttpServletRequest request) {
         return new ResponseEntity<List<EmployeeDTO>>(userService.getAll(), HttpStatus.OK);
+    }
+
+    @PostMapping(consumes="application/json", value="/register/admin")
+    public ResponseEntity<HttpStatus> registerAdmin(@RequestBody RegistrationDTO data) {
+        if(userService.isBlocked(data.getEmail()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (!passwordValidator.isValid(data.getPassword()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            userService.registerAdmin(data);
+        } catch (Exception ignored) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @PostMapping(consumes="application/json", value="/edit/admin")
+    public ResponseEntity<HttpStatus> editProfileAdmin(@RequestBody RegistrationDTO data) {
+        if (!passwordValidator.isValid(data.getPassword()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            userService.editAdmin(data);
+        } catch (Exception ignored) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -23,4 +23,11 @@ public class ProjectService {
         }
         return dtos;
     }
+    public void createProject(ProjectDTO projectDTO){
+        Project project = new Project();
+        project.setName(projectDTO.getName());
+        project.setDuration(projectDTO.getDuration());
+        project.setDescription(projectDTO.getDescription());
+        projectRepository.save(project);
+    }
 }
