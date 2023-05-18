@@ -1,6 +1,7 @@
 package com.example.demo.security;
 
 import com.example.demo.service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -12,13 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
-    private TokenUtils tokenUtils;
+    @Autowired
+    private  TokenUtils tokenUtils;
+    @Autowired
+    private  CustomUserDetailsService userDetailsService;
 
-    private CustomUserDetailsService userDetailsService;
+    public TokenAuthenticationFilter() {
 
-    public TokenAuthenticationFilter(TokenUtils tokenHelper, CustomUserDetailsService userDetailsService) {
-        this.tokenUtils = tokenHelper;
-        this.userDetailsService = userDetailsService;
     }
 
     @Override

@@ -12,7 +12,7 @@ public class UserDetailsImpl {
 
     private String email;
 
-    @JsonIgnore
+
     private String password;
 
 

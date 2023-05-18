@@ -3,6 +3,7 @@ package com.example.demo.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.example.demo.service.CustomUserDetailsService;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -52,7 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	private CustomUserDetailsService jwtUserDetailsService;
 	@Bean
 	public TokenAuthenticationFilter authenticationJwtTokenFilter() {
-		return new TokenAuthenticationFilter(tokenUtils,jwtUserDetailsService);
+		return new TokenAuthenticationFilter();
 	}
 	// Definisemo uputstvo za authentication managera koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje,
 	// kao i kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu da bi adekvatan hash koji dobije kao rezultat bcrypt algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
@@ -61,7 +63,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		auth.userDetailsService(jwtUserDetailsService).passwordEncoder(passwordEncoder());
 	}
+	@Bean
+	public DaoAuthenticationProvider authenticationProvider() {
+		DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+		// 1. koji servis da koristi da izvuce podatke o korisniku koji zeli da se autentifikuje
+		// prilikom autentifikacije, AuthenticationManager ce sam pozivati loadUserByUsername() metodu ovog servisa
+		authProvider.setUserDetailsService(userDetailsService());
+		// 2. kroz koji enkoder da provuce lozinku koju je dobio od klijenta u zahtevu
+		// da bi adekvatan hash koji dobije kao rezultat hash algoritma uporedio sa onim koji se nalazi u bazi (posto se u bazi ne cuva plain lozinka)
+		authProvider.setPasswordEncoder(passwordEncoder());
 
+		return authProvider;
+	}
 	// Definisemo prava pristupa odredjenim URL-ovima
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -70,14 +83,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				// komunikacija izmedju klijenta i servera je stateless posto je u pitanju REST aplikacija
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-				.httpBasic().disable().formLogin().disable()
+				//.httpBasic().disable().formLogin().disable()
 				// svim korisnicima dopusti da pristupe putanjama /auth/login
-				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register").permitAll()
+				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register","/project-manager/*").permitAll()
 
 				// za svaki drugi zahtev korisnik mora biti autentifikovan
 				.anyRequest().permitAll();
-		http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(authenticationJwtTokenFilter(), BasicAuthenticationFilter.class);
 		http.csrf().disable();
+
 	}
 
 	@Override
