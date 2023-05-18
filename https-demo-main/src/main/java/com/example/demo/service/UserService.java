@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.dto.RegistrationDTO;
 import com.example.demo.model.BlockedUser;
 import com.example.demo.model.RegistrationToken;
@@ -11,6 +12,7 @@ import com.example.demo.utils.HMAC;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -107,5 +109,14 @@ public class UserService {
         if(bu == null)
             return false;
         return bu.isBlocked();
+    }
+    public List<EmployeeDTO> getAll(){
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
+        List<EmployeeDTO> dtos = new ArrayList<>();
+        for(User u:all){
+            EmployeeDTO dto = new EmployeeDTO(u.getEmail(),u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getAddress(), u.getTitle(), u.getRoles().iterator().next().getName());
+            dtos.add(dto);
+        }
+        return dtos;
     }
 }

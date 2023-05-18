@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginDTO;
-import com.example.demo.dto.PasswordlessLoginDTO;
-import com.example.demo.dto.PasswordlessLoginTokenDTO;
-import com.example.demo.dto.RegistrationDTO;
+import com.example.demo.dto.*;
 import com.example.demo.exception.RefreshTokenException;
 import com.example.demo.model.*;
 import com.example.demo.repo.PasswordlessTokenRepo;
@@ -185,12 +182,17 @@ public class UserController {
 
     }
 
-    List<String> GetRoleNames2(User user){
+    List<String> GetRoleNames2(User user) {
         List<String> roleNames = new ArrayList<>();
-        for(Role role:user.getRoles()){
+        for (Role role : user.getRoles()) {
             roleNames.add(role.getName());
         }
         return roleNames;
+    }
 
+    @GetMapping("/all")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployees(HttpServletRequest request) {
+        return new ResponseEntity<List<EmployeeDTO>>(userService.getAll(), HttpStatus.OK);
     }
 }
