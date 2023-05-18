@@ -85,7 +85,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				//.httpBasic().disable().formLogin().disable()
 				// svim korisnicima dopusti da pristupe putanjama /auth/login
-				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register").permitAll()
+				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register","/project-manager/*").permitAll()
 
 				// za svaki drugi zahtev korisnik mora biti autentifikovan
 				.anyRequest().permitAll();
