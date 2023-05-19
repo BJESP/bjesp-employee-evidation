@@ -1,15 +1,19 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.EngineerCVDocumentDTO;
 import com.example.demo.dto.EngineerSkillDTO;
 import com.example.demo.dto.ProjectManagerUpdateDTO;
+import com.example.demo.model.CVDocument;
 import com.example.demo.model.EngineerProfile;
 import com.example.demo.model.Skill;
 import com.example.demo.repo.SkillRepo;
 import com.example.demo.repo.UserRepo;
+import com.example.demo.service.EngineerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -17,37 +21,38 @@ import org.springframework.web.bind.annotation.*;
 public class EngineerController {
 
     @Autowired
-    SkillRepo skillRepo;
+    EngineerService engineerService;
 
-    @Autowired
-    UserRepo userRepo;
 
+    //ALSO USE FOR CREATE
     @PostMapping(value="/update-engineer-skill")
-    public boolean UpdateEngineerSkill(@RequestBody EngineerSkillDTO engineerSkillDTO){
+    public ResponseEntity UpdateEngineerSkill(@RequestBody EngineerSkillDTO engineerSkillDTO)
+    {
+        Skill createdSkill = engineerService.UpdateEngineerSkill(engineerSkillDTO);
 
-        System.out.println("JSON EMAIL: " + engineerSkillDTO.getEngineerProfileEmail());
-        System.out.println("JSON: " + engineerSkillDTO.getName());
-        System.out.println("JSON: " + engineerSkillDTO.getRating());
-        if(!userRepo.existsByEmail(engineerSkillDTO.getEngineerProfileEmail()))
+        if(createdSkill == null)
         {
-            System.out.println("NEMA TOG USERA");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND).hasBody();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        Skill skill = skillRepo.findByEngineerProfileEmailAndName(engineerSkillDTO.getEngineerProfileEmail(), engineerSkillDTO.getName());
-
-        if (skill == null)
-        {
-            skill = new Skill();
-        }
-
-        skill.setRating(engineerSkillDTO.getRating());
-        skill.setName(engineerSkillDTO.getName());
-        skill.setEngineerProfile((EngineerProfile) userRepo.findByEmail(engineerSkillDTO.getEngineerProfileEmail()));
-
-        skillRepo.save(skill);
-
-        return new ResponseEntity<>(HttpStatus.OK).hasBody();
+        return new ResponseEntity<>(createdSkill, HttpStatus.OK);
     }
+
+    //ALSO USE FOR CREATE
+    @PostMapping(value="/update-engineer-cv")
+    public ResponseEntity UpdateEngineerCV(@RequestParam("documentData") MultipartFile file, @ModelAttribute EngineerCVDocumentDTO CVDocument)
+    {
+        CVDocument.setDocumentData(file);
+        boolean createdCV = engineerService.UpdateEngineerCV(CVDocument);
+
+        if(createdCV == false)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(createdCV, HttpStatus.OK);
+    }
+
+
 
 }
