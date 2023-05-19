@@ -52,9 +52,8 @@ public class ProjectManagerController {
         }
 
         return new ResponseEntity<>(new ProjectManagerUpdateDTO(projectManager), HttpStatus.OK);
-
-
     }
+
     @GetMapping(value="/engineer-project")
     public ResponseEntity<List<EngineerDTO>> GetAllEngineers(){
         List<EngineerProfile> engineers = projectManagerService.FindAll();

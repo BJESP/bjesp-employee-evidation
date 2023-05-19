@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Scope("singleton")
 public interface SkillRepo extends JpaRepository<Skill, Long> {
+    Skill findByEngineerProfileEmailAndName(String engineerProfileEmail, String name);
 }
