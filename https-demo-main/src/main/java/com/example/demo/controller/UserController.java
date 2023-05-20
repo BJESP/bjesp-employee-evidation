@@ -76,7 +76,7 @@ public class UserController {
 
         User userDetails = (User) authentication.getPrincipal();
 
-        String jwt = tokenUtils.generateToken(userEmail);
+        String jwt = tokenUtils.generateToken(userEmail, userDetails.getRole().getName());
 
 
 
@@ -115,7 +115,7 @@ public class UserController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = tokenUtils.generateToken(user.getEmail());
+        String jwt = tokenUtils.generateToken(user.getEmail(),user.getRole().getName());
 
         RefreshToken refreshToken = refreshTokenService.createRefreshTokenPasswordless(user);
 

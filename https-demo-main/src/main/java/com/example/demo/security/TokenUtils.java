@@ -34,9 +34,9 @@ public class TokenUtils {
     private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
 
-    public String generateToken(String email) {
+    public String generateToken(String email,String role) {
         return Jwts.builder()
-                //.claim("role", role)
+                .claim("role", role)
                 .setIssuer(APP_NAME)
                 .setSubject(email)
                 .setAudience("web")
