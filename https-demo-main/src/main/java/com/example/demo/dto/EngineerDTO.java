@@ -14,6 +14,8 @@ public class EngineerDTO {
     public LocalDate startDate;
     public LocalDate endDate;
 
+    public Long taskId;
+
     public EngineerDTO( String name, String surname, String taskName, String description, LocalDate startDate, LocalDate endDate) {
 
         this.name = name;
@@ -22,6 +24,17 @@ public class EngineerDTO {
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public EngineerDTO(Long id, String name, String surname, String taskName, String description, LocalDate startDate, LocalDate endDate, Long taskId) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.taskName = taskName;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.taskId = taskId;
     }
 
     public EngineerDTO(Long id, String name, String surname) {

@@ -42,6 +42,22 @@ public class ProjectManagerController {
 
 
     }
+    @GetMapping(value="/get-task/{taskId}")
+    public ResponseEntity<EngineerDTO> GetTaskAndEngineer(@PathVariable  Long taskId){
+        EngineerDTO engineer = projectManagerService.GetEngineerTaskAndEngineer(taskId);
+        if (engineer == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(engineer, HttpStatus.OK);
+
+
+    }
+    @GetMapping(value="/get-manager/{managerId}")
+    public ResponseEntity GetManagerById(@PathVariable Long managerId){
+        ProjectManagerProfile manager = projectManagerService.GetManagerById(managerId);
+        return new ResponseEntity(manager,HttpStatus.OK);
+    }
 
     @PostMapping(value="/update-project-manager")
     public ResponseEntity UpdateProjectManagerInformation(@RequestBody ProjectManagerUpdateDTO projectManagerUpdateDTO){

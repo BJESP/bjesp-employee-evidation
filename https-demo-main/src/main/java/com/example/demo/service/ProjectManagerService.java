@@ -47,7 +47,7 @@ public class ProjectManagerService {
        List<EngineerDTO> engineers = new ArrayList<>();
        for(ProjectTask projectTask:projectTasks){
            if(projectTask.getProject().getId()== projectId){
-               engineers.add(new EngineerDTO(projectTask.getEngineerProfile().getFirstName(), projectTask.getEngineerProfile().getLastName(), projectTask.getTaskName(), projectTask.getDescription(), projectTask.getStartDate(),projectTask.getEndDate()));
+               engineers.add(new EngineerDTO(projectTask.getEngineerProfile().getId(), projectTask.getEngineerProfile().getFirstName(), projectTask.getEngineerProfile().getLastName(), projectTask.getTaskName(), projectTask.getDescription(), projectTask.getStartDate(),projectTask.getEndDate(),projectTask.getId()));
            }
        }
 
@@ -90,6 +90,16 @@ public class ProjectManagerService {
        return projectTask;
 
 
+    }
+    public EngineerDTO GetEngineerTaskAndEngineer(Long taskId){
+        ProjectTask  projectTask = projectTaskRepo.findById(taskId).orElseGet(null);
+        EngineerDTO engineerDTO = new EngineerDTO(projectTask.getEngineerProfile().getId(), projectTask.getEngineerProfile().getFirstName(), projectTask.getEngineerProfile().getLastName(), projectTask.getTaskName(), projectTask.getDescription(), projectTask.getStartDate(),projectTask.getEndDate(),projectTask.getId());
+        return engineerDTO;
+
+    }
+    public ProjectManagerProfile GetManagerById(Long managerId){
+       ProjectManagerProfile manager = projectManagerRepo.findById(managerId).orElseGet(null);
+       return manager;
     }
 
 }
