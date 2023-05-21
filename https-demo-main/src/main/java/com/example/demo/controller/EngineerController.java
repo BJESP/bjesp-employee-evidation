@@ -1,10 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.EngineerCVDocumentDTO;
-import com.example.demo.dto.EngineerSkillDTO;
-import com.example.demo.dto.ProjectManagerUpdateDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.CVDocument;
 import com.example.demo.model.EngineerProfile;
+import com.example.demo.model.ProjectTask;
 import com.example.demo.model.Skill;
 import com.example.demo.repo.SkillRepo;
 import com.example.demo.repo.UserRepo;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -53,6 +53,16 @@ public class EngineerController {
         return new ResponseEntity<>(createdCV, HttpStatus.OK);
     }
 
-
-
+    @PostMapping(value="/get-project-tasks")
+    public ResponseEntity GetProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
+    {
+        List<ProjectTask> projectTaskList = engineerService.GetProjectTasksForEnginner(enginnerEmailDTO);
+        return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+    }
+    @PostMapping(value="/get-project-and-project-tasks")
+    public ResponseEntity GetProjectWithProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
+    {
+        List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);
+        return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+    }
 }

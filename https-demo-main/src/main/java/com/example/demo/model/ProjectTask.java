@@ -1,10 +1,14 @@
 package com.example.demo.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import net.minidev.json.annotate.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@JsonIgnoreProperties({"engineerProfile" , "project"})
 public class ProjectTask {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +24,12 @@ public class ProjectTask {
 
     private String description;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "engineer_profile_id")
     private EngineerProfile engineerProfile;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
@@ -82,18 +88,22 @@ public class ProjectTask {
         this.description = description;
     }
 
+    @JsonIgnore
     public EngineerProfile getEngineerProfile() {
         return engineerProfile;
     }
 
+    @JsonIgnore
     public void setEngineerProfile(EngineerProfile engineerProfile) {
         this.engineerProfile = engineerProfile;
     }
 
+    @JsonIgnore
     public Project getProject() {
         return project;
     }
 
+    @JsonIgnore
     public void setProject(Project project) {
         this.project = project;
     }
