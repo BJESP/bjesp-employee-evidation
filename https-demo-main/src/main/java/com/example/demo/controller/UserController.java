@@ -26,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "*")
@@ -74,16 +76,16 @@ public class UserController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User userDetails = (User) authentication.getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        List<String> roleNames = GetRoleNames(userDetails);
+        String jwt = tokenUtils.generateToken(userEmail, roleNames);
 
-        String jwt = tokenUtils.generateToken(userEmail, userDetails.getRole().getName());
 
 
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
 
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
-
-        return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), userDetails.getId(),
-                 userDetails.getEmail()));
+        return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), userDetails.getUser().getId(),
+                 userDetails.getUsername(),roleNames));
     }
 
     @PostMapping(consumes="application/json",value = "/passwordlesslogin")
@@ -114,13 +116,13 @@ public class UserController {
         Authentication authentication = (new UsernamePasswordAuthenticationToken(user.getEmail(), null));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        String jwt = tokenUtils.generateToken(user.getEmail(),user.getRole().getName());
+        List<String> roleNames = GetRoleNames2(user);
+        String jwt = tokenUtils.generateToken(user.getEmail(),roleNames);
 
         RefreshToken refreshToken = refreshTokenService.createRefreshTokenPasswordless(user);
 
         return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), 0L,
-                user.getEmail()));
+                user.getEmail(),roleNames));
 
     }
 
@@ -172,5 +174,23 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    List<String> GetRoleNames(UserDetailsImpl user){
+        List<String> roleNames = new ArrayList<>();
+        for(Role role:user.getUser().getRoles()){
+            roleNames.add(role.getName());
+        }
+        return roleNames;
+
+    }
+
+    List<String> GetRoleNames2(User user){
+        List<String> roleNames = new ArrayList<>();
+        for(Role role:user.getRoles()){
+            roleNames.add(role.getName());
+        }
+        return roleNames;
+
     }
 }

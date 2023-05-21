@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 
 @Component
 public class TokenUtils {
@@ -34,9 +35,9 @@ public class TokenUtils {
     private final SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
 
 
-    public String generateToken(String email,String role) {
+    public String generateToken(String email, List<String> roles) {
         return Jwts.builder()
-                .claim("role", role)
+                .claim("roles", roles)
                 .setIssuer(APP_NAME)
                 .setSubject(email)
                 .setAudience("web")

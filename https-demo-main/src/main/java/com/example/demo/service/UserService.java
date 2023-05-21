@@ -50,11 +50,11 @@ public class UserService {
     public void registerUser(RegistrationDTO userRegDTO) {
         User user = new User(userRegDTO);
         if(userRegDTO.getRole().equals("ROLE_HR_MANAGER")){
-            user.setRole(roleRepository.findByName("ROLE_HR_MANAGER"));
+            user.getRoles().add(roleRepository.findByName("ROLE_HR_MANAGER"));
         } else if (userRegDTO.getRole().equals("ROLE_SOFTWARE_ENGINEER")) {
-            user.setRole(roleRepository.findByName("ROLE_SOFTWARE_ENGINEER"));
+            user.getRoles().add(roleRepository.findByName("ROLE_SOFTWARE_ENGINEER"));
         } else if (userRegDTO.getRole().equals("ROLE_PROJECT_MANAGER")) {
-            user.setRole(roleRepository.findByName("ROLE_PROJECT_MANAGER"));
+            user.getRoles().add(roleRepository.findByName("ROLE_PROJECT_MANAGER"));
         }
         userRepository.save(user);
     }
