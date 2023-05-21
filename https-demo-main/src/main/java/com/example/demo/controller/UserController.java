@@ -163,7 +163,7 @@ public class UserController {
         return new ResponseEntity<>("Registration request denied", HttpStatus.OK);
     }
 
-    @PostMapping(value="/confirm-mail")
+    @GetMapping(value="/confirm-mail", consumes = "*/*")
     public ResponseEntity<HttpStatus> activateUserAccount(@RequestParam("token") String token, @RequestParam("hmac") String hmac){
         try {
             userService.verifyUser(token, hmac);
