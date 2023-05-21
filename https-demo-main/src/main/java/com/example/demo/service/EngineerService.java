@@ -2,11 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.dto.EngineerCVDocumentDTO;
 import com.example.demo.dto.EngineerSkillDTO;
-import com.example.demo.model.CVDocument;
-import com.example.demo.model.EngineerProfile;
-import com.example.demo.model.Skill;
-import com.example.demo.model.User;
+import com.example.demo.dto.PasswordlessLoginDTO;
+import com.example.demo.model.*;
 import com.example.demo.repo.CVDocumentRepo;
+import com.example.demo.repo.ProjectTaskRepo;
 import com.example.demo.repo.SkillRepo;
 import com.example.demo.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -34,6 +34,9 @@ public class EngineerService
 
     @Autowired
     CVDocumentRepo cvDocumentRepo;
+
+    @Autowired
+    ProjectTaskRepo projectTaskRepo;
     public Skill UpdateEngineerSkill(EngineerSkillDTO engineerSkillDTO)
     {
         if(!userRepo.existsByEmail(engineerSkillDTO.getEngineerProfileEmail()))
@@ -101,5 +104,17 @@ public class EngineerService
         }
 
         return true;
+    }
+
+    public List<ProjectTask> GetProjectTasksForEnginner(PasswordlessLoginDTO engineerEmailDTO) {
+
+        User user = userRepo.findByEmail(engineerEmailDTO.getUsername());
+        if(user == null)
+        {
+            System.out.println("NEMA TOG USERA");
+            return null;
+        }
+
+        return projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
     }
 }
