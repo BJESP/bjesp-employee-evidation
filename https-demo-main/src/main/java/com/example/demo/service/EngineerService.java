@@ -13,6 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 
 @Service
 public class EngineerService
@@ -49,8 +58,8 @@ public class EngineerService
         return skill;
     }
 
-    public boolean UpdateEngineerCV(EngineerCVDocumentDTO cvDocument)
-    {
+    public boolean UpdateEngineerCV(EngineerCVDocumentDTO cvDocument) throws IOException {
+
         if(!userRepo.existsByEmail(cvDocument.getEngineerProfileEmail()))
         {
             System.out.println("NEMA TOG USERA");
@@ -63,13 +72,33 @@ public class EngineerService
         if (newCvDocument == null)
         {
             newCvDocument = new CVDocument();
+            newCvDocument.setInternalName(UUID.randomUUID().toString());
         }
 
-        newCvDocument.setDocumentData(cvDocument.getDocumentData());
+        saveFile(newCvDocument.getInternalName(), cvDocument.getDocumentData());
         newCvDocument.setDocumentName(cvDocument.getDocumentName());
         newCvDocument.setEngineerProfile((EngineerProfile) userRepo.findByEmail(cvDocument.getEngineerProfileEmail()));
 
         cvDocumentRepo.save(newCvDocument);
+
+        return true;
+    }
+
+    public static boolean saveFile(String internalName, MultipartFile multipartFile)
+            throws IOException {
+        Path uploadPath = Paths.get("Files-Upload");
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            Path filePath = uploadPath.resolve(internalName + ".pdf");
+            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ioe) {
+            throw new IOException("Could not save file:", ioe);
+        }
 
         return true;
     }

@@ -30,13 +30,6 @@ public class CVDocument {
         this.documentName = documentName;
     }
 
-    public MultipartFile getDocumentData() {
-        return documentData;
-    }
-
-    public void setDocumentData(MultipartFile documentData) {
-        this.documentData = documentData;
-    }
 
     public EngineerProfile getEngineerProfile() {
         return engineerProfile;
@@ -46,11 +39,17 @@ public class CVDocument {
         this.engineerProfile = engineerProfile;
     }
 
+    public String getInternalName() {
+        return internalName;
+    }
+
+    public void setInternalName(String internalName) {
+        this.internalName = internalName;
+    }
+
+    private String internalName;
     private String documentName;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private MultipartFile documentData;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "engineer_profile_id")

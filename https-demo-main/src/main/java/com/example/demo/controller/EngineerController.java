@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/engineer")
@@ -40,9 +42,7 @@ public class EngineerController {
 
     //ALSO USE FOR CREATE
     @PostMapping(value="/update-engineer-cv")
-    public ResponseEntity UpdateEngineerCV(@RequestParam("documentData") MultipartFile file, @ModelAttribute EngineerCVDocumentDTO CVDocument)
-    {
-        CVDocument.setDocumentData(file);
+    public ResponseEntity UpdateEngineerCV(@ModelAttribute EngineerCVDocumentDTO CVDocument) throws IOException {
         boolean createdCV = engineerService.UpdateEngineerCV(CVDocument);
 
         if(createdCV == false)
