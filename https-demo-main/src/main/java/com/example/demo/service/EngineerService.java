@@ -1,13 +1,11 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.EngineerCVDocumentDTO;
+import com.example.demo.dto.EngineerProjectWithProjectTaskDTO;
 import com.example.demo.dto.EngineerSkillDTO;
 import com.example.demo.dto.PasswordlessLoginDTO;
 import com.example.demo.model.*;
-import com.example.demo.repo.CVDocumentRepo;
-import com.example.demo.repo.ProjectTaskRepo;
-import com.example.demo.repo.SkillRepo;
-import com.example.demo.repo.UserRepo;
+import com.example.demo.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +18,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class EngineerService
 {
+    @Autowired
+    ProjectRepo projectRepo;
     @Autowired
     SkillRepo skillRepo;
 
@@ -116,5 +117,32 @@ public class EngineerService
         }
 
         return projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
+    }
+
+    public List<EngineerProjectWithProjectTaskDTO> GetProjectWithProjectTasksForEnginner(PasswordlessLoginDTO engineerEmailDTO) {
+
+        User user = userRepo.findByEmail(engineerEmailDTO.getUsername());
+        if(user == null)
+        {
+            System.out.println("NEMA TOG USERA");
+            return null;
+        }
+
+        List<ProjectTask> projectTaskList = projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
+        List<EngineerProjectWithProjectTaskDTO> engineerProjectWithProjectTaskDTOS = new ArrayList<>();
+        for (ProjectTask projectTask : projectTaskList)
+        {
+            EngineerProjectWithProjectTaskDTO newProjectProjectTask = new EngineerProjectWithProjectTaskDTO();
+
+            newProjectProjectTask.setProjectName(projectTask.getProject().getName());
+            newProjectProjectTask.setTaskName(projectTask.getTaskName());
+            newProjectProjectTask.setDescription(projectTask.getDescription());
+            newProjectProjectTask.setEndDate(projectTask.getEndDate());
+            newProjectProjectTask.setStartDate(projectTask.getStartDate());
+            newProjectProjectTask.setId(projectTask.getId());
+            engineerProjectWithProjectTaskDTOS.add(newProjectProjectTask);
+        }
+
+        return engineerProjectWithProjectTaskDTOS;
     }
 }

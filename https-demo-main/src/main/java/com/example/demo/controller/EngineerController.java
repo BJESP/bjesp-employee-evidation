@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.EngineerCVDocumentDTO;
-import com.example.demo.dto.EngineerSkillDTO;
-import com.example.demo.dto.PasswordlessLoginDTO;
-import com.example.demo.dto.ProjectManagerUpdateDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.CVDocument;
 import com.example.demo.model.EngineerProfile;
 import com.example.demo.model.ProjectTask;
@@ -62,5 +59,10 @@ public class EngineerController {
         List<ProjectTask> projectTaskList = engineerService.GetProjectTasksForEnginner(enginnerEmailDTO);
         return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
     }
-
+    @PostMapping(value="/get-project-and-project-tasks")
+    public ResponseEntity GetProjectWithProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
+    {
+        List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);
+        return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+    }
 }
