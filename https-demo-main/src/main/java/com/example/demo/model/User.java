@@ -68,9 +68,13 @@ public class User implements UserDetails {
     @Column
     private boolean initialAdmin;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = true)
-//    private Role role;
+    public boolean isInitialAdmin() {
+        return initialAdmin;
+    }
+
+    public void setInitialAdmin(boolean initialAdmin) {
+        this.initialAdmin = initialAdmin;
+    }
 
     public User() {
     }

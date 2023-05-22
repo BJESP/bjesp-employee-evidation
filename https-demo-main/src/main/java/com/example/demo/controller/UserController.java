@@ -148,19 +148,19 @@ public class UserController {
                         "Refresh token is not in database!"));
     }
     @PostMapping("/approve/{email}")
-    public ResponseEntity<String> approveUser(@PathVariable String email) {
+    public ResponseEntity<HttpStatus> approveUser(@PathVariable String email) {
         if (email == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         userService.approveRegistrationRequest(email);
-        return new ResponseEntity<>("Registration request approved", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/deny/{email}")
-    public ResponseEntity<String> denyUser(@PathVariable String email, String reason) {
+    @PostMapping("/deny/{email}/{reason}")
+    public ResponseEntity<HttpStatus> denyUser(@PathVariable String email,@PathVariable String reason) {
         if (email == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         userService.denyRegistrationRequest(email, reason);
-        return new ResponseEntity<>("Registration request denied", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping(value="/confirm-mail", consumes = "*/*")
@@ -221,5 +221,10 @@ public class UserController {
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/register/request")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RegistrationRequestDTO>> getRegistrationRequests(HttpServletRequest request) {
+        return new ResponseEntity<List<RegistrationRequestDTO>>(userService.getRegistrationRequests(), HttpStatus.OK);
     }
 }

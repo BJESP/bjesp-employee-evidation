@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.dto.RegistrationDTO;
+import com.example.demo.dto.RegistrationRequestDTO;
 import com.example.demo.model.*;
 import com.example.demo.repo.BlockedUserRepo;
 import com.example.demo.repo.RoleRepo;
@@ -139,6 +140,31 @@ public class UserService {
         for(User u:all){
             EmployeeDTO dto = new EmployeeDTO(u.getEmail(),u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getAddress(), u.getTitle(), u.getRoles().iterator().next().getName());
             dtos.add(dto);
+        }
+        return dtos;
+    }
+    public List<RegistrationRequestDTO> getRegistrationRequests(){
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(false);
+        ArrayList<RegistrationToken> approved = (ArrayList<RegistrationToken>) registrationTokenService.registrationTokenRepository.findAll();
+        List<RegistrationRequestDTO> dtos = new ArrayList<>();
+        Iterator<User> iterator1 = all.iterator();
+        while (iterator1.hasNext()) {
+            User element1 = iterator1.next();
+            Long id1 = element1.getId();
+            Iterator<RegistrationToken> iterator2 = approved.iterator();
+            while (iterator2.hasNext()) {
+                RegistrationToken element2 = iterator2.next();
+                if(element2.getUser()!=null) {
+                    Long id2 = element2.getUser().getId();
+                    if (id1 == id2) {
+                        iterator1.remove();
+                    }
+                }
+            }
+        }
+        for(User u:all){
+            RegistrationRequestDTO registrationRequestDTO = new RegistrationRequestDTO(u.getEmail(),u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getTitle(), u.getRoles().stream().iterator().next().getName());
+            dtos.add(registrationRequestDTO);
         }
         return dtos;
     }
