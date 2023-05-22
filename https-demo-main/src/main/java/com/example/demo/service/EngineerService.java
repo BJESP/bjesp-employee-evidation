@@ -1,9 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.EngineerCVDocumentDTO;
-import com.example.demo.dto.EngineerProjectWithProjectTaskDTO;
-import com.example.demo.dto.EngineerSkillDTO;
-import com.example.demo.dto.PasswordlessLoginDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.*;
 import com.example.demo.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +116,17 @@ public class EngineerService
         return projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
     }
 
+    public List<Skill> GetSkillsForEnginner(PasswordlessLoginDTO engineerEmailDTO) {
+
+        User user = userRepo.findByEmail(engineerEmailDTO.getUsername());
+        if(user == null)
+        {
+            System.out.println("NEMA TOG USERA");
+            return null;
+        }
+
+        return skillRepo.getAllSkillsByEngineerProfileId(user.getId());
+    }
     public List<EngineerProjectWithProjectTaskDTO> GetProjectWithProjectTasksForEnginner(PasswordlessLoginDTO engineerEmailDTO) {
 
         User user = userRepo.findByEmail(engineerEmailDTO.getUsername());
@@ -128,6 +136,7 @@ public class EngineerService
             return null;
         }
 
+        System.out.println("NASAO USERA SA ID: " +  user.getId());
         List<ProjectTask> projectTaskList = projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
         List<EngineerProjectWithProjectTaskDTO> engineerProjectWithProjectTaskDTOS = new ArrayList<>();
         for (ProjectTask projectTask : projectTaskList)
@@ -144,5 +153,33 @@ public class EngineerService
         }
 
         return engineerProjectWithProjectTaskDTOS;
+    }
+
+    public boolean UpdateProjectTaskForEngineer(UpdateProjectTaskRequestDTO requestDTO) {
+
+        System.out.println(requestDTO.getProjectName());
+        System.out.println("USERNAME: " + requestDTO.getUsername());
+
+        User user = userRepo.findByEmail(requestDTO.getUsername());
+        if(user == null)
+        {
+            System.out.println("NEMA TOG USERA");
+            return false;
+        }
+
+        List<ProjectTask> projectTasks = projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
+
+        for (ProjectTask projectTask:projectTasks)
+        {
+            if(projectTask.getProject().getName().equals(requestDTO.getProjectName()))
+            {
+                projectTask.setDescription(requestDTO.getDescription());
+                projectTaskRepo.save(projectTask);
+                return true;
+            }
+        }
+
+        System.out.println("NISAM NASAO TASK SA TIM PROJEKTOM I TIM USEROM");
+        return false;
     }
 }

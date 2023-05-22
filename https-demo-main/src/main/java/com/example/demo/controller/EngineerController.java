@@ -30,6 +30,11 @@ public class EngineerController {
     @PostMapping(value="/update-engineer-skill")
     public ResponseEntity UpdateEngineerSkill(@RequestBody EngineerSkillDTO engineerSkillDTO)
     {
+        if(engineerSkillDTO.getRating() >5 || engineerSkillDTO.getRating() < 1)
+        {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         Skill createdSkill = engineerService.UpdateEngineerSkill(engineerSkillDTO);
 
         if(createdSkill == null)
@@ -53,6 +58,13 @@ public class EngineerController {
         return new ResponseEntity<>(createdCV, HttpStatus.OK);
     }
 
+    @PostMapping(value="/get-engineer-skills")
+    public ResponseEntity GetSkillsForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
+    {
+        List<Skill> skillsList = engineerService.GetSkillsForEnginner(enginnerEmailDTO);
+        return new ResponseEntity<>(skillsList, HttpStatus.OK);
+    }
+
     @PostMapping(value="/get-project-tasks")
     public ResponseEntity GetProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
@@ -64,5 +76,16 @@ public class EngineerController {
     {
         List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);
         return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+    }
+
+    @PostMapping(value="/update-project-task")
+    public ResponseEntity UpdateProjectTaskForEngineer(@RequestBody UpdateProjectTaskRequestDTO requestDTO){
+
+        boolean changed = engineerService.UpdateProjectTaskForEngineer(requestDTO);
+        if (!changed) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
