@@ -9,7 +9,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
 @Table(name="USERS")
@@ -58,6 +60,21 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
     private Collection<Role> roles;
+    @Column
+    private LocalDate dateOfEmployment;
+
+    @Column
+    private boolean changedPassword;
+    @Column
+    private boolean initialAdmin;
+
+    public boolean isInitialAdmin() {
+        return initialAdmin;
+    }
+
+    public void setInitialAdmin(boolean initialAdmin) {
+        this.initialAdmin = initialAdmin;
+    }
 
     public User() {
     }
@@ -180,5 +197,21 @@ public class User implements UserDetails {
 
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
+    }
+
+    public LocalDate getDateOfEmployment() {
+        return dateOfEmployment;
+    }
+
+    public void setDateOfEmployment(LocalDate dateOfEmployment) {
+        this.dateOfEmployment = dateOfEmployment;
+    }
+
+    public boolean isChangedPassword() {
+        return changedPassword;
+    }
+
+    public void setChangedPassword(boolean changedPassword) {
+        this.changedPassword = changedPassword;
     }
 }

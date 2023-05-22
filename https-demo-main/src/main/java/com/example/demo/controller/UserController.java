@@ -1,9 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.LoginDTO;
-import com.example.demo.dto.PasswordlessLoginDTO;
-import com.example.demo.dto.PasswordlessLoginTokenDTO;
-import com.example.demo.dto.RegistrationDTO;
+import com.example.demo.dto.*;
 import com.example.demo.exception.RefreshTokenException;
 import com.example.demo.model.*;
 import com.example.demo.repo.PasswordlessTokenRepo;
@@ -151,22 +148,22 @@ public class UserController {
                         "Refresh token is not in database!"));
     }
     @PostMapping("/approve/{email}")
-    public ResponseEntity<String> approveUser(@PathVariable String email) {
+    public ResponseEntity<HttpStatus> approveUser(@PathVariable String email) {
         if (email == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         userService.approveRegistrationRequest(email);
-        return new ResponseEntity<>("Registration request approved", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping("/deny/{email}")
-    public ResponseEntity<String> denyUser(@PathVariable String email, String reason) {
+    @PostMapping("/deny/{email}/{reason}")
+    public ResponseEntity<HttpStatus> denyUser(@PathVariable String email,@PathVariable String reason) {
         if (email == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         userService.denyRegistrationRequest(email, reason);
-        return new ResponseEntity<>("Registration request denied", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping(value="/confirm-mail")
+    @GetMapping(value="/confirm-mail", consumes = "*/*")
     public ResponseEntity<HttpStatus> activateUserAccount(@RequestParam("token") String token, @RequestParam("hmac") String hmac){
         try {
             userService.verifyUser(token, hmac);
@@ -185,12 +182,49 @@ public class UserController {
 
     }
 
-    List<String> GetRoleNames2(User user){
+    List<String> GetRoleNames2(User user) {
         List<String> roleNames = new ArrayList<>();
-        for(Role role:user.getRoles()){
+        for (Role role : user.getRoles()) {
             roleNames.add(role.getName());
         }
         return roleNames;
+    }
 
+    @GetMapping("/all")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EmployeeDTO>> getAllEmployees(HttpServletRequest request) {
+        return new ResponseEntity<List<EmployeeDTO>>(userService.getAll(), HttpStatus.OK);
+    }
+
+    @PostMapping(consumes="application/json", value="/register/admin")
+    public ResponseEntity<HttpStatus> registerAdmin(@RequestBody RegistrationDTO data) {
+        if(userService.isBlocked(data.getEmail()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (!passwordValidator.isValid(data.getPassword()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            userService.registerAdmin(data);
+        } catch (Exception ignored) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @PostMapping(consumes="application/json", value="/edit/admin")
+    public ResponseEntity<HttpStatus> editProfileAdmin(@RequestBody RegistrationDTO data) {
+        if (!passwordValidator.isValid(data.getPassword()))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            userService.editAdmin(data);
+        } catch (Exception ignored) {
+            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @GetMapping("/register/request")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<RegistrationRequestDTO>> getRegistrationRequests(HttpServletRequest request) {
+        return new ResponseEntity<List<RegistrationRequestDTO>>(userService.getRegistrationRequests(), HttpStatus.OK);
     }
 }

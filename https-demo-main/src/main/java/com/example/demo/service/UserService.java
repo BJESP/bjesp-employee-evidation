@@ -1,18 +1,18 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.dto.RegistrationDTO;
-import com.example.demo.model.BlockedUser;
-import com.example.demo.model.RegistrationToken;
-import com.example.demo.model.User;
+import com.example.demo.dto.RegistrationRequestDTO;
+import com.example.demo.model.*;
 import com.example.demo.repo.BlockedUserRepo;
 import com.example.demo.repo.RoleRepo;
 import com.example.demo.repo.UserRepo;
 import com.example.demo.utils.HMAC;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -49,13 +49,38 @@ public class UserService {
     }
     public void registerUser(RegistrationDTO userRegDTO) {
         User user = new User(userRegDTO);
+        Collection<Role> roles = new ArrayList<Role>();
         if(userRegDTO.getRole().equals("ROLE_HR_MANAGER")){
-            user.getRoles().add(roleRepository.findByName("ROLE_HR_MANAGER"));
+            roles.add(roleRepository.findByName("ROLE_HR_MANAGER"));
+            user.setRoles(roles);
         } else if (userRegDTO.getRole().equals("ROLE_SOFTWARE_ENGINEER")) {
-            user.getRoles().add(roleRepository.findByName("ROLE_SOFTWARE_ENGINEER"));
+            roles.add(roleRepository.findByName("ROLE_SOFTWARE_ENGINEER"));
+            user.setRoles(roles);
         } else if (userRegDTO.getRole().equals("ROLE_PROJECT_MANAGER")) {
-            user.getRoles().add(roleRepository.findByName("ROLE_PROJECT_MANAGER"));
+            roles.add(roleRepository.findByName("ROLE_PROJECT_MANAGER"));
+            user.setRoles(roles);
         }
+        userRepository.save(user);
+    }
+    public void registerAdmin(RegistrationDTO userRegDTO) {
+        User user = new User(userRegDTO);
+        Collection<Role> roles = new ArrayList<Role>();
+        roles.add(roleRepository.findByName("ROLE_ADMIN"));
+        user.setRoles(roles);
+        user.setActive(true);
+        userRepository.save(user);
+    }
+    public void editAdmin(RegistrationDTO userRegDTO) {
+        User user = userRepository.findByEmail(userRegDTO.getEmail());
+        user.setFirstName(userRegDTO.getFirstName());
+        user.setLastName(userRegDTO.getLastName());
+        user.setPhoneNumber(userRegDTO.getPhoneNumber());
+        user.setPassword(userRegDTO.getPassword());
+        user.setTitle(userRegDTO.getTitle());
+        user.getAddress().setCountry(userRegDTO.getCountry());
+        user.getAddress().setCity(userRegDTO.getCity());
+        user.getAddress().setStreet(userRegDTO.getStreet());
+        user.getAddress().setStreetNumber(userRegDTO.getStreetNumber());
         userRepository.save(user);
     }
     public User findByEmail(String email) {
@@ -96,8 +121,9 @@ public class UserService {
             return false;
         }
         user.setActive(true);
+        if(user.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER"))
+            user.setDateOfEmployment(LocalDate.now());
         userRepository.save(user);
-        //ovde dodati ono za inz za pocetak rada!!
         //brise se da bi moglo samo jednom da se iskoristi
         registrationTokenService.removeToken(secureToken);
         return true;
@@ -107,5 +133,39 @@ public class UserService {
         if(bu == null)
             return false;
         return bu.isBlocked();
+    }
+    public List<EmployeeDTO> getAll(){
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
+        List<EmployeeDTO> dtos = new ArrayList<>();
+        for(User u:all){
+            EmployeeDTO dto = new EmployeeDTO(u.getEmail(),u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getAddress(), u.getTitle(), u.getRoles().iterator().next().getName());
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+    public List<RegistrationRequestDTO> getRegistrationRequests(){
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(false);
+        ArrayList<RegistrationToken> approved = (ArrayList<RegistrationToken>) registrationTokenService.registrationTokenRepository.findAll();
+        List<RegistrationRequestDTO> dtos = new ArrayList<>();
+        Iterator<User> iterator1 = all.iterator();
+        while (iterator1.hasNext()) {
+            User element1 = iterator1.next();
+            Long id1 = element1.getId();
+            Iterator<RegistrationToken> iterator2 = approved.iterator();
+            while (iterator2.hasNext()) {
+                RegistrationToken element2 = iterator2.next();
+                if(element2.getUser()!=null) {
+                    Long id2 = element2.getUser().getId();
+                    if (id1 == id2) {
+                        iterator1.remove();
+                    }
+                }
+            }
+        }
+        for(User u:all){
+            RegistrationRequestDTO registrationRequestDTO = new RegistrationRequestDTO(u.getEmail(),u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getTitle(), u.getRoles().stream().iterator().next().getName());
+            dtos.add(registrationRequestDTO);
+        }
+        return dtos;
     }
 }

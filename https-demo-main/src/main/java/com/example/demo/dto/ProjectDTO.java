@@ -1,7 +1,6 @@
 package com.example.demo.dto;
 
 public class ProjectDTO {
-
     private String name;
 
     private int duration;
