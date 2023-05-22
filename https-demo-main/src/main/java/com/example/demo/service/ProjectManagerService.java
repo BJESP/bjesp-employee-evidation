@@ -88,8 +88,6 @@ public class ProjectManagerService {
        projectTask.setDescription(updateProjectTaskDTO.getDescription());
        projectTaskRepo.save(projectTask);
        return projectTask;
-
-
     }
     public EngineerDTO GetEngineerTaskAndEngineer(Long taskId){
         ProjectTask  projectTask = projectTaskRepo.findById(taskId).orElseGet(null);
