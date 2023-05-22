@@ -1,9 +1,12 @@
 package com.example.demo.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 
 @Entity
+@JsonIgnoreProperties({"engineerProfile" , "id"})
 public class Skill {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

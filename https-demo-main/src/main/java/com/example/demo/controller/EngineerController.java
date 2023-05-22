@@ -53,6 +53,13 @@ public class EngineerController {
         return new ResponseEntity<>(createdCV, HttpStatus.OK);
     }
 
+    @PostMapping(value="/get-engineer-skills")
+    public ResponseEntity GetSkillsForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
+    {
+        List<Skill> skillsList = engineerService.GetSkillsForEnginner(enginnerEmailDTO);
+        return new ResponseEntity<>(skillsList, HttpStatus.OK);
+    }
+
     @PostMapping(value="/get-project-tasks")
     public ResponseEntity GetProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
@@ -62,6 +69,7 @@ public class EngineerController {
     @PostMapping(value="/get-project-and-project-tasks")
     public ResponseEntity GetProjectWithProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
+        System.out.println("POGODIO " + enginnerEmailDTO.getUsername());
         List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);
         return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
     }
