@@ -12,6 +12,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name="USERS")
@@ -63,6 +64,8 @@ public class User implements UserDetails {
     @Column
     private LocalDate dateOfEmployment;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectTask> tasks;
     @Column
     private boolean changedPassword;
     @Column
@@ -213,5 +216,13 @@ public class User implements UserDetails {
 
     public void setChangedPassword(boolean changedPassword) {
         this.changedPassword = changedPassword;
+    }
+
+    public List<ProjectTask> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<ProjectTask> tasks) {
+        this.tasks = tasks;
     }
 }
