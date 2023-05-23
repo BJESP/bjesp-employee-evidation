@@ -61,6 +61,7 @@ public class EngineerService
 
     public boolean UpdateEngineerCV(EngineerCVDocumentDTO cvDocument) throws IOException {
 
+        System.out.println("EMAIL: " + cvDocument.getEngineerProfileEmail());
         if(!userRepo.existsByEmail(cvDocument.getEngineerProfileEmail()))
         {
             System.out.println("NEMA TOG USERA");
