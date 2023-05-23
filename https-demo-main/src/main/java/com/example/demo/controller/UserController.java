@@ -5,15 +5,13 @@ import com.example.demo.exception.RefreshTokenException;
 import com.example.demo.model.*;
 import com.example.demo.repo.PasswordlessTokenRepo;
 import com.example.demo.security.TokenUtils;
-import com.example.demo.service.CustomUserDetailsService;
-import com.example.demo.service.PasswordLessTokenService;
-import com.example.demo.service.RefreshTokenService;
-import com.example.demo.service.UserService;
+import com.example.demo.service.*;
 import com.example.demo.utils.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +22,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +47,28 @@ public class UserController {
 
     @Autowired
     private RefreshTokenService refreshTokenService;
+    @Autowired
+    private RolePrivilegeService rolePrivilegeService;
+    @PostMapping(value="/change-permission")
+    public ResponseEntity ChangeRolePermissions(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
+        rolePrivilegeService.AddRolePermission(rolePrivilegeDTO);
+        return new ResponseEntity(HttpStatus.OK);
 
+    }
+
+    @PostMapping(value="/delete-permission")
+    public ResponseEntity DeleteRolePermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
+        rolePrivilegeService.DeleteRolePermission(rolePrivilegeDTO);
+        return new ResponseEntity(HttpStatus.OK);
+
+    }
+    @GetMapping(value="/get-permission/{roleId}")
+    public ResponseEntity GetPermissionForRole(@PathVariable Long roleId){
+        Role role = rolePrivilegeService.GetRoleById(roleId);
+        List<Privilege> newList  =(List) role.getPrivileges();
+        return new ResponseEntity<>(newList,HttpStatus.OK);
+
+    }
 
     @PostMapping(consumes="application/json", value="/register")
     public ResponseEntity<HttpStatus> registerUser(@RequestBody RegistrationDTO data) {
@@ -171,6 +191,17 @@ public class UserController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @GetMapping(value="/loggedInUser",produces=MediaType.APPLICATION_JSON_VALUE)
+    //@PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity getLoggedInUser(HttpServletRequest request) {
+        String email = tokenUtils.getEmailDirectlyFromHeader(request);
+        if (email == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        User user = userService.findByEmail(email);
+        UserDTO userDTO = new UserDTO(user.getId(),user.getFirstName(),user.getLastName(),user.getEmail(),user.getAddress(),user.getPhoneNumber());
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
 
     List<String> GetRoleNames(UserDetailsImpl user){
         List<String> roleNames = new ArrayList<>();
@@ -226,4 +257,6 @@ public class UserController {
     public ResponseEntity<List<RegistrationRequestDTO>> getRegistrationRequests(HttpServletRequest request) {
         return new ResponseEntity<List<RegistrationRequestDTO>>(userService.getRegistrationRequests(), HttpStatus.OK);
     }
+
+
 }
