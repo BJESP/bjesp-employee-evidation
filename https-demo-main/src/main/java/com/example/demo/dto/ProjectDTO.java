@@ -1,37 +1,40 @@
 package com.example.demo.dto;
 
 public class ProjectDTO {
+
+    private Long projectId;
+
+
     private String name;
 
     private int duration;
 
     private String description;
 
-    private String id;
 
-    public ProjectDTO(String name, int duration, String description) {
+
+
+    public ProjectDTO(Long projectId,String name, int duration, String description) {
+
         this.name = name;
         this.duration = duration;
         this.description = description;
+        this.projectId = projectId;
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId) {
+        this.projectId = projectId;
     }
 
     public ProjectDTO() {
     }
 
-    public ProjectDTO(String name, int duration, String description, String id) {
-        this.name = name;
-        this.duration = duration;
-        this.description = description;
-        this.id = id;
-    }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+   
 
     public String getName() {
         return name;

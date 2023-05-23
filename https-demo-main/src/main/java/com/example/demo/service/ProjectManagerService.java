@@ -1,10 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.*;
-import com.example.demo.model.EngineerProfile;
-import com.example.demo.model.Project;
-import com.example.demo.model.ProjectManagerProfile;
-import com.example.demo.model.ProjectTask;
+import com.example.demo.model.*;
 import com.example.demo.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +25,10 @@ public class ProjectManagerService {
 
     @Autowired
     private ProjectTaskRepo projectTaskRepo;
+    @Autowired
+    private AddressRepo addressRepo;
+    @Autowired
+    private RoleRepo roleRepo;
 
 
    public List<ProjectDTO> GetAllProject(Long managerId){
@@ -35,7 +36,7 @@ public class ProjectManagerService {
         List <ProjectDTO> newList = new ArrayList<>();
         for(Project proj:projectList){
 
-            newList.add(new ProjectDTO(proj.getName(),proj.getDuration(),proj.getDescription()));
+            newList.add(new ProjectDTO(proj.getId(),proj.getName(),proj.getDuration(),proj.getDescription()));
 
                       }
         return newList;
@@ -59,6 +60,9 @@ public class ProjectManagerService {
         ProjectManagerProfile projectManager = findOne(projectManagerUpdateDTO.getId());
         projectManager.setPhoneNumber(projectManagerUpdateDTO.phoneNumber);
         projectManager.setTitle(projectManagerUpdateDTO.getTitle());
+        Address address = new Address(projectManagerUpdateDTO.getAddress().getCountry(),projectManagerUpdateDTO.getAddress().getCity(),
+                projectManagerUpdateDTO.getAddress().getStreet(),projectManagerUpdateDTO.getAddress().getStreetNumber());
+        addressRepo.save(address);
         projectManager.setAddress(projectManagerUpdateDTO.getAddress());
         projectManager = projectManagerRepo.save(projectManager);
         return projectManager;
@@ -80,6 +84,7 @@ public class ProjectManagerService {
 
     }
 
+
     public ProjectTask UpdateProjectTaskForEngineer(UpdateProjectTaskDTO updateProjectTaskDTO){
        ProjectTask  projectTask = projectTaskRepo.findById(updateProjectTaskDTO.getTaskId()).orElseGet(null);
        projectTask.setStartDate(updateProjectTaskDTO.getStartDate());
@@ -99,5 +104,47 @@ public class ProjectManagerService {
        ProjectManagerProfile manager = projectManagerRepo.findById(managerId).orElseGet(null);
        return manager;
     }
+
+    public boolean CheckPermission(Long managerId){
+      /* ProjectManagerProfile projectManagerProfile = GetManagerById(managerId);
+       List <Role> roles = (List)projectManagerProfile.getRoles();
+       for (Role role:roles){
+           for(Privilege privilege:)
+       }*/
+
+            ProjectManagerProfile projectManagerProfile = GetManagerById(managerId);
+            List<Role> roles = (List)projectManagerProfile.getRoles();
+
+            boolean hasPermission = false;
+
+            for (Role role : roles) {
+                List<Privilege> privileges =(List) role.getPrivileges();
+
+                for (Privilege privilege : privileges) {
+                    // Perform the necessary checks for each privilege
+                    if (privilege.getName().equals("SOME_PRIVILEGE")) {
+                        hasPermission = true;
+                        break; // Break out of the inner loop once the privilege is found
+                    }
+                }
+
+                if (hasPermission) {
+                    break; // Break out of the outer loop once the privilege is found
+                }
+            }
+
+            if (hasPermission) {
+                return hasPermission;
+                // Handle the case where the project manager has the required privilege
+                // Perform the necessary actions or return the appropriate response
+                // Example: allow access to a specific functionality
+            } else {
+                return false;
+                // Handle the case where the project manager does not have the required privilege
+                // Example: deny access to a specific functionality or log unauthorized access
+            }
+        }
+
+
 
 }

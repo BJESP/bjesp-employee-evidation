@@ -2,6 +2,7 @@ package com.example.demo.security;
 
 import com.example.demo.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -37,7 +38,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 System.out.println("dosaooooooooo");
                 // Get user with the username
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                System.out.println(userDetails.getUsername()+userDetails.getPassword()+"blalalalal");
+
+
                 // Check if the token is valid
                 if (tokenUtils.validateToken(authToken, userDetails)) {
                     // Create authentication

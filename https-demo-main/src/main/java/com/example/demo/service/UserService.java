@@ -9,6 +9,9 @@ import com.example.demo.repo.BlockedUserRepo;
 import com.example.demo.repo.RoleRepo;
 import com.example.demo.repo.UserRepo;
 import com.example.demo.utils.HMAC;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -137,6 +140,7 @@ public class UserService {
             return false;
         return bu.isBlocked();
     }
+
     public List<EmployeeDTO> getAll(){
         ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
         List<EmployeeDTO> dtos = new ArrayList<>();
@@ -203,19 +207,30 @@ public class UserService {
 
         return dtos;
     }
-    public List<EngineerDTO> getAllEngineersOnProject(String projectId){
+    public List<EngineerDTO> getAllEngineersOnProject(String projectId) {
         ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
         ArrayList<User> eng = new ArrayList<User>();
         ArrayList<ProjectTask> onProject = projectService.getAllProjectTasksIdByProject(projectId);
         List<EngineerDTO> dtos = new ArrayList<>();
-        for(User u:all) {
+        for (User u : all) {
             for (ProjectTask t : onProject)
-                if (u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER") && t.getUser().getEmail().equals(u.getEmail()))
-                {
-                    EngineerDTO dto = new EngineerDTO(u.getId(),u.getFirstName(),u.getLastName(),t.getTaskName(), t.getDescription(), t.getStartDate(), t.getEndDate(), t.getId());
+                if (u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER") && t.getUser().getEmail().equals(u.getEmail())) {
+                    EngineerDTO dto = new EngineerDTO(u.getId(), u.getFirstName(), u.getLastName(), t.getTaskName(), t.getDescription(), t.getStartDate(), t.getEndDate(), t.getId());
                     dtos.add(dto);
                 }
         }
         return dtos;
+    }
+    public boolean CheckPermissionForRole(Authentication authentication,String privilege){
+
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            if (authority.getAuthority().equals(privilege)) {
+                return true ; // User has the required privilege
+            }
+
+            }
+        return false;
+
+
     }
 }
