@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.EmployeeDTO;
+import com.example.demo.dto.EngineerDTO;
 import com.example.demo.dto.RegistrationDTO;
 import com.example.demo.dto.RegistrationRequestDTO;
 import com.example.demo.model.*;
@@ -23,8 +24,9 @@ public class UserService {
     private final  RegistrationTokenService registrationTokenService;
     private final HMAC HMACService;
     private final BlockedUserRepo blockedUserRepository;
+    private final ProjectService projectService;
 
-    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository) {
+    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService) {
         this.userRepository = userRepository;
 
         this.roleRepository = roleRepository;
@@ -32,6 +34,7 @@ public class UserService {
         this.registrationTokenService = registrationTokenService;
         HMACService = hmacService;
         this.blockedUserRepository = blockedUserRepository;
+        this.projectService = projectService;
     }
 
     public User findByUserEmail(String userEmail) {
@@ -165,6 +168,53 @@ public class UserService {
         for(User u:all){
             RegistrationRequestDTO registrationRequestDTO = new RegistrationRequestDTO(u.getEmail(),u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getTitle(), u.getRoles().stream().iterator().next().getName());
             dtos.add(registrationRequestDTO);
+        }
+        return dtos;
+    }
+    public List<EngineerDTO> getAllEngineersNotOnProject(String projectId){
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
+        ArrayList<User> eng = new ArrayList<User>();
+        ArrayList<ProjectTask> onProject = projectService.getAllProjectTasksIdByProject(projectId);
+        List<EngineerDTO> dtos = new ArrayList<>();
+        for(User u:all){
+            if(u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER"))
+                eng.add(u);
+        }
+        Iterator<User> iterator1 = eng.iterator();
+        while (iterator1.hasNext()) {
+            User element1 = iterator1.next();
+            Long id1 = element1.getId();
+            Iterator<ProjectTask> iterator2 = onProject.iterator();
+            while (iterator2.hasNext()) {
+                ProjectTask element2 = iterator2.next();
+                if(element2.getUser()!=null) {
+                    Long id2 = element2.getUser().getId();
+                    if (id1 == id2) {
+                        iterator1.remove();
+                    }
+                }
+            }
+        }
+        for(User engineer: eng){
+            EngineerDTO dto = new EngineerDTO(engineer.getId(),engineer.getFirstName(),engineer.getLastName());
+            dtos.add(dto);
+
+        }
+
+        return dtos;
+    }
+    public List<EngineerDTO> getAllEngineersOnProject(String projectId){
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
+        ArrayList<User> eng = new ArrayList<User>();
+        ArrayList<ProjectTask> onProject = projectService.getAllProjectTasksIdByProject(projectId);
+        List<EngineerDTO> dtos = new ArrayList<>();
+        for(User u:all) {
+            for (ProjectTask t : onProject)
+                if (u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER") && t.getUser().getEmail().equals(u.getEmail()))
+                {
+                    EngineerDTO dto = new EngineerDTO(u.getId(),u.getFirstName(),u.getLastName(),t.getTaskName(), t.getDescription(), t.getStartDate(), t.getEndDate(), t.getId());
+                    dtos.add(dto);
+                }
         }
         return dtos;
     }
