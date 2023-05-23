@@ -10,6 +10,7 @@ public class ProjectDTO {
     private int duration;
 
     private String description;
+    private String id;
 
 
 
@@ -20,6 +21,13 @@ public class ProjectDTO {
         this.duration = duration;
         this.description = description;
         this.projectId = projectId;
+    }
+    public ProjectDTO(String name, int duration, String description ,String projectId) {
+
+        this.name = name;
+        this.duration = duration;
+        this.description = description;
+        this.id = projectId;
     }
 
     public Long getProjectId() {
@@ -34,7 +42,7 @@ public class ProjectDTO {
     }
 
 
-   
+
 
     public String getName() {
         return name;
