@@ -92,10 +92,9 @@ public class UserController {
         return new ResponseEntity<>("HTTPS request successfully passed!", HttpStatus.OK);
     }
 
-    @PostMapping(consumes="application/json",value = "/passwordlessloginToken")
-    public ResponseEntity passwordlessLoginToken(@RequestBody PasswordlessLoginTokenDTO passwordlessLoginTokenDTO)
+    @GetMapping(value="/passwordless-login", consumes = "*/*")
+    public ResponseEntity passwordlessLoginToken(@RequestParam("token") String token)
     {
-        String token = passwordlessLoginTokenDTO.getToken();
         if (token == null || token.equals(""))
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 

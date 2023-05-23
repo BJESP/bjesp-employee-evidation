@@ -44,7 +44,7 @@ public class PasswordlessToken {
     {
         boolean valid = true;
 
-        if(creationTime.isBefore(LocalDateTime.now().minusMinutes(3)) || isUsed == true)
+        if(creationTime.isBefore(LocalDateTime.now().minusMinutes(15)) || isUsed == true)
         {
             valid = false;
         }

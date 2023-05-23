@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.net.PasswordAuthentication;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,17 +65,21 @@ public class PasswordLessTokenService {
         {
             if(passwordlessToken.IsStillValid())
             {
-                User user = userRepo.findByUsername(passwordlessToken.getUsername());
+                User user = userRepo.findByEmail(passwordlessToken.getUsername());
                 if (user == null) {
                     System.out.println("No user found with username " + passwordlessToken.getUsername());
                     throw new UsernameNotFoundException(String.format("No user found with username '%s'.", passwordlessToken.getUsername()));
                 } else {
+                    passwordlessToken.setUsed(true);
                     return user;
                 }
             }
             else
             {
-                passwordlessTokenRepo.delete(passwordlessToken);
+                if(passwordlessToken.getCreationTime().isBefore(LocalDateTime.now().minusMinutes(3)))
+                {
+                    passwordlessTokenRepo.delete(passwordlessToken);
+                }
                 System.out.println("token is no longer valid!");
                 throw new UsernameNotFoundException("token is no longer valid!");
             }
