@@ -182,4 +182,48 @@ public class EngineerService
         System.out.println("NISAM NASAO TASK SA TIM PROJEKTOM I TIM USEROM");
         return false;
     }
+
+    public boolean UpdateAccountDetails(EngineerAccountDetailsDTO engineerAccountDetailsDTO)
+    {
+        System.out.println("APDEJTUJEM DETALJE I U SERVISU");
+        User user = userRepo.findByEmail(engineerAccountDetailsDTO.getEmail());
+        if(user == null)
+        {
+            System.out.println("NEMA TOG USERA");
+            return false;
+        }
+
+        user.setAddress(engineerAccountDetailsDTO.getAddress());
+        if(engineerAccountDetailsDTO.getPassword() != null)
+        {
+            if(!engineerAccountDetailsDTO.getPassword().equals("") )
+            {
+                user.setPassword(engineerAccountDetailsDTO.getPassword());
+            }
+        }
+        user.setFirstName(engineerAccountDetailsDTO.getFirstName());
+        user.setLastName(engineerAccountDetailsDTO.getLastName());
+        user.setPhoneNumber(engineerAccountDetailsDTO.getPhoneNumber());
+
+        userRepo.save(user);
+
+        return true;
+    }
+
+    public EngineerAccountDetailsDTO GetAccountDetails(String username) {
+        User user = userRepo.findByEmail(username);
+
+        if(user == null)
+        {
+            return null;
+        }
+
+        EngineerAccountDetailsDTO engineerAccountDetailsDTO = new EngineerAccountDetailsDTO();
+        engineerAccountDetailsDTO.setAddress(user.getAddress());
+        engineerAccountDetailsDTO.setFirstName(user.getFirstName());
+        engineerAccountDetailsDTO.setLastName(user.getLastName());
+        engineerAccountDetailsDTO.setPhoneNumber(user.getPhoneNumber());
+
+        return engineerAccountDetailsDTO;
+    }
 }

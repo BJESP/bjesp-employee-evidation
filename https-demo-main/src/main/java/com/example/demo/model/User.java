@@ -114,7 +114,7 @@ public class User implements UserDetails {
         this.setTitle(userRegistrationDTO.getTitle());
         this.setAddress(new Address(userRegistrationDTO.getCountry(), userRegistrationDTO.getCity(), userRegistrationDTO.getStreet(), userRegistrationDTO.getStreetNumber()));
         this.setPhoneNumber(userRegistrationDTO.getPhoneNumber());
-        this.setPassword(new BCryptPasswordEncoder().encode(userRegistrationDTO.getPassword()));
+        this.setPassword(userRegistrationDTO.getPassword());
         this.setActive(false);
     }
     public Long getId() {
@@ -135,7 +135,7 @@ public class User implements UserDetails {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = new BCryptPasswordEncoder().encode(password);
     }
 
     public String getFirstName() {

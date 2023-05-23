@@ -1,13 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.*;
-import com.example.demo.model.CVDocument;
-import com.example.demo.model.EngineerProfile;
-import com.example.demo.model.ProjectTask;
-import com.example.demo.model.Skill;
+import com.example.demo.model.*;
 import com.example.demo.repo.SkillRepo;
 import com.example.demo.repo.UserRepo;
 import com.example.demo.service.EngineerService;
+import com.example.demo.utils.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +23,8 @@ public class EngineerController {
     @Autowired
     EngineerService engineerService;
 
+    @Autowired
+    private PasswordValidator passwordValidator;
 
     //ALSO USE FOR CREATE
     @PostMapping(value="/update-engineer-skill")
@@ -86,6 +86,33 @@ public class EngineerController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping(value="/account-details")
+    public ResponseEntity getAccountDetails(@RequestBody PasswordlessLoginDTO enginnerEmailDTO) {
+
+        EngineerAccountDetailsDTO accountDetails = engineerService.GetAccountDetails(enginnerEmailDTO.getUsername());
+        if (accountDetails == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(accountDetails, HttpStatus.OK);
+    }
+
+    @PostMapping(value="/account-details-update")
+    public ResponseEntity updateAccountDetails(@RequestBody EngineerAccountDetailsDTO engineerAccountDetailsDTO) {
+
+        System.out.println("APDEJTUJEM DETALJE");
+        if(engineerAccountDetailsDTO.getPassword() != null)
+        {
+            if (!passwordValidator.isValid(engineerAccountDetailsDTO.getPassword()))
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        boolean changed = engineerService.UpdateAccountDetails(engineerAccountDetailsDTO);
+        if (!changed) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
