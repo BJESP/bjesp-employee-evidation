@@ -7,8 +7,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.persistence.*;
 
 public class EngineerCVDocumentDTO {
-    @JsonProperty("documentName")
     private String documentName;
+    private MultipartFile documentData;
+    private String  engineerProfileEmail;
 
     public EngineerCVDocumentDTO() {
     }
@@ -21,8 +22,6 @@ public class EngineerCVDocumentDTO {
         this.documentName = documentName;
     }
 
-    @JsonProperty("documentData")
-    private MultipartFile documentData;
 
     public MultipartFile getDocumentData() {
         return documentData;
@@ -40,6 +39,4 @@ public class EngineerCVDocumentDTO {
         this.engineerProfileEmail = engineerProfileEmail;
     }
 
-    @JsonProperty("engineerProfileEmail")
-    private String  engineerProfileEmail;
 }

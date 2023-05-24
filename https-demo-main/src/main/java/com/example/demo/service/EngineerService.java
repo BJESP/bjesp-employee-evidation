@@ -59,15 +59,16 @@ public class EngineerService
         return skill;
     }
 
-    public boolean UpdateEngineerCV(EngineerCVDocumentDTO cvDocument) throws IOException {
+    public boolean UpdateEngineerCV(MultipartFile file, String username) throws IOException {
 
-        if(!userRepo.existsByEmail(cvDocument.getEngineerProfileEmail()))
+        System.out.println("EMAIL: " + username);
+        if(!userRepo.existsByEmail(username))
         {
             System.out.println("NEMA TOG USERA");
             return false;
         }
 
-        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(cvDocument.getEngineerProfileEmail()));
+        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
 
 
         if (newCvDocument == null)
@@ -76,9 +77,9 @@ public class EngineerService
             newCvDocument.setInternalName(UUID.randomUUID().toString());
         }
 
-        saveFile(newCvDocument.getInternalName(), cvDocument.getDocumentData());
-        newCvDocument.setDocumentName(cvDocument.getDocumentName());
-        newCvDocument.setEngineerProfile((EngineerProfile) userRepo.findByEmail(cvDocument.getEngineerProfileEmail()));
+        saveFile(newCvDocument.getInternalName(), file);
+        newCvDocument.setDocumentName(file.getOriginalFilename());
+        newCvDocument.setEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
 
         cvDocumentRepo.save(newCvDocument);
 
@@ -181,5 +182,49 @@ public class EngineerService
 
         System.out.println("NISAM NASAO TASK SA TIM PROJEKTOM I TIM USEROM");
         return false;
+    }
+
+    public boolean UpdateAccountDetails(EngineerAccountDetailsDTO engineerAccountDetailsDTO)
+    {
+        System.out.println("APDEJTUJEM DETALJE I U SERVISU");
+        User user = userRepo.findByEmail(engineerAccountDetailsDTO.getEmail());
+        if(user == null)
+        {
+            System.out.println("NEMA TOG USERA");
+            return false;
+        }
+
+        user.setAddress(engineerAccountDetailsDTO.getAddress());
+        if(engineerAccountDetailsDTO.getPassword() != null)
+        {
+            if(!engineerAccountDetailsDTO.getPassword().equals("") )
+            {
+                user.setPassword(engineerAccountDetailsDTO.getPassword());
+            }
+        }
+        user.setFirstName(engineerAccountDetailsDTO.getFirstName());
+        user.setLastName(engineerAccountDetailsDTO.getLastName());
+        user.setPhoneNumber(engineerAccountDetailsDTO.getPhoneNumber());
+
+        userRepo.save(user);
+
+        return true;
+    }
+
+    public EngineerAccountDetailsDTO GetAccountDetails(String username) {
+        User user = userRepo.findByEmail(username);
+
+        if(user == null)
+        {
+            return null;
+        }
+
+        EngineerAccountDetailsDTO engineerAccountDetailsDTO = new EngineerAccountDetailsDTO();
+        engineerAccountDetailsDTO.setAddress(user.getAddress());
+        engineerAccountDetailsDTO.setFirstName(user.getFirstName());
+        engineerAccountDetailsDTO.setLastName(user.getLastName());
+        engineerAccountDetailsDTO.setPhoneNumber(user.getPhoneNumber());
+
+        return engineerAccountDetailsDTO;
     }
 }
