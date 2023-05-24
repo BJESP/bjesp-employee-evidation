@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @JsonIgnoreProperties({"engineerProfile" , "project"})
 public class ProjectTask {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "start_date")
@@ -29,10 +29,6 @@ public class ProjectTask {
     @JoinColumn(name = "engineer_profile_id")
     private EngineerProfile engineerProfile;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -113,11 +109,4 @@ public class ProjectTask {
         this.project = project;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 }

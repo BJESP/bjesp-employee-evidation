@@ -63,5 +63,13 @@ public class Project {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    public List<ProjectManagerProfile> getManagers() {
+        return managers;
+    }
+
+    public void setManagers(List<ProjectManagerProfile> managers) {
+        this.managers = managers;
+    }
 }
 

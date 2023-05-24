@@ -242,8 +242,10 @@ public class UserController {
     }
     @PostMapping(consumes="application/json", value="/edit/admin")
     public ResponseEntity<HttpStatus> editProfileAdmin(@RequestBody RegistrationDTO data) {
-        if (!passwordValidator.isValid(data.getPassword()))
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (data.getPassword()!=null) {
+            if (!passwordValidator.isValid(data.getPassword()))
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         try {
             userService.editAdmin(data);
         } catch (Exception ignored) {
@@ -257,6 +259,46 @@ public class UserController {
     public ResponseEntity<List<RegistrationRequestDTO>> getRegistrationRequests(HttpServletRequest request) {
         return new ResponseEntity<List<RegistrationRequestDTO>>(userService.getRegistrationRequests(), HttpStatus.OK);
     }
+    @GetMapping(value="/loggedInAdmin")
+    //@PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<RegistrationDTO> getLoggedInAdmin(HttpServletRequest request) {
+        String email = tokenUtils.getEmailDirectlyFromHeader(request);
+        if (email == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
+        User user = userService.findByEmail(email);
+        RegistrationDTO dto = new RegistrationDTO();
+        dto.setEmail(user.getEmail());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setCountry(user.getAddress().getCountry());
+        dto.setCity(user.getAddress().getCity());
+        dto.setStreet(user.getAddress().getStreet());
+        dto.setStreetNumber(user.getAddress().getStreetNumber());
+        dto.setPhoneNumber(user.getPhoneNumber());
+        dto.setTitle(user.getTitle());
+        return new ResponseEntity<RegistrationDTO>(dto, HttpStatus.OK);
+    }
+    @GetMapping("/isInitial")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Boolean> getInitialAdmin(HttpServletRequest request) {
+        String email = tokenUtils.getEmailDirectlyFromHeader(request);
+        if (email == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        User user = userService.findByEmail(email);
+        return new ResponseEntity<Boolean>(userService.isInitial(user), HttpStatus.OK);
+    }
 
+    @PostMapping("/edit/admin/pass/{pass}")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<HttpStatus> changeInitialPassword(HttpServletRequest request, @PathVariable String pass) {
+        if (!passwordValidator.isValid(pass))
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        String email = tokenUtils.getEmailDirectlyFromHeader(request);
+        if (email == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        User user = userService.findByEmail(email);
+        userService.changeInitialPassword(user, pass);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

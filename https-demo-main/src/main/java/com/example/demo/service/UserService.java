@@ -6,12 +6,13 @@ import com.example.demo.dto.RegistrationDTO;
 import com.example.demo.dto.RegistrationRequestDTO;
 import com.example.demo.model.*;
 import com.example.demo.repo.BlockedUserRepo;
+import com.example.demo.repo.EngineerRepo;
 import com.example.demo.repo.RoleRepo;
 import com.example.demo.repo.UserRepo;
 import com.example.demo.utils.HMAC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,8 +29,9 @@ public class UserService {
     private final HMAC HMACService;
     private final BlockedUserRepo blockedUserRepository;
     private final ProjectService projectService;
+    private final EngineerRepo engineerRepo;
 
-    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService) {
+    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService, EngineerRepo engineerRepo) {
         this.userRepository = userRepository;
 
         this.roleRepository = roleRepository;
@@ -38,6 +40,7 @@ public class UserService {
         HMACService = hmacService;
         this.blockedUserRepository = blockedUserRepository;
         this.projectService = projectService;
+        this.engineerRepo = engineerRepo;
     }
 
     public User findByUserEmail(String userEmail) {
@@ -59,14 +62,18 @@ public class UserService {
         if(userRegDTO.getRole().equals("ROLE_HR_MANAGER")){
             roles.add(roleRepository.findByName("ROLE_HR_MANAGER"));
             user.setRoles(roles);
+            userRepository.save(user);
         } else if (userRegDTO.getRole().equals("ROLE_SOFTWARE_ENGINEER")) {
             roles.add(roleRepository.findByName("ROLE_SOFTWARE_ENGINEER"));
-            user.setRoles(roles);
+            EngineerProfile eng = new EngineerProfile(userRegDTO);
+            eng.setRoles(roles);
+            userRepository.save(eng);
         } else if (userRegDTO.getRole().equals("ROLE_PROJECT_MANAGER")) {
             roles.add(roleRepository.findByName("ROLE_PROJECT_MANAGER"));
-            user.setRoles(roles);
+            ProjectManagerProfile projectManagerProfile = new ProjectManagerProfile(userRegDTO);
+            projectManagerProfile.setRoles(roles);
+            userRepository.save(projectManagerProfile);
         }
-        userRepository.save(user);
     }
     public void registerAdmin(RegistrationDTO userRegDTO) {
         User user = new User(userRegDTO);
@@ -81,7 +88,9 @@ public class UserService {
         user.setFirstName(userRegDTO.getFirstName());
         user.setLastName(userRegDTO.getLastName());
         user.setPhoneNumber(userRegDTO.getPhoneNumber());
-        user.setPassword(userRegDTO.getPassword());
+        if(userRegDTO.getPassword()!=null){
+            user.setPassword(new BCryptPasswordEncoder().encode(userRegDTO.getPassword()));
+        }
         user.setTitle(userRegDTO.getTitle());
         user.getAddress().setCountry(userRegDTO.getCountry());
         user.getAddress().setCity(userRegDTO.getCity());
@@ -176,23 +185,18 @@ public class UserService {
         return dtos;
     }
     public List<EngineerDTO> getAllEngineersNotOnProject(String projectId){
-        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
-        ArrayList<User> eng = new ArrayList<User>();
+        ArrayList<EngineerProfile> eng = (ArrayList<EngineerProfile>) engineerRepo.findAllByIsActive(true);
         ArrayList<ProjectTask> onProject = projectService.getAllProjectTasksIdByProject(projectId);
         List<EngineerDTO> dtos = new ArrayList<>();
-        for(User u:all){
-            if(u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER"))
-                eng.add(u);
-        }
-        Iterator<User> iterator1 = eng.iterator();
+        Iterator<EngineerProfile> iterator1 = eng.iterator();
         while (iterator1.hasNext()) {
-            User element1 = iterator1.next();
+            EngineerProfile element1 = iterator1.next();
             Long id1 = element1.getId();
             Iterator<ProjectTask> iterator2 = onProject.iterator();
             while (iterator2.hasNext()) {
                 ProjectTask element2 = iterator2.next();
-                if(element2.getUser()!=null) {
-                    Long id2 = element2.getUser().getId();
+                if(element2.getEngineerProfile()!=null) {
+                    Long id2 = element2.getEngineerProfile().getId();
                     if (id1 == id2) {
                         iterator1.remove();
                     }
@@ -208,29 +212,36 @@ public class UserService {
         return dtos;
     }
     public List<EngineerDTO> getAllEngineersOnProject(String projectId) {
-        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
-        ArrayList<User> eng = new ArrayList<User>();
+        //ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
+        List<EngineerProfile> eng = engineerRepo.findAllByIsActive(true);
         ArrayList<ProjectTask> onProject = projectService.getAllProjectTasksIdByProject(projectId);
         List<EngineerDTO> dtos = new ArrayList<>();
-        for (User u : all) {
+        for (User u : eng) {
             for (ProjectTask t : onProject)
-                if (u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER") && t.getUser().getEmail().equals(u.getEmail())) {
-                    EngineerDTO dto = new EngineerDTO(u.getId(), u.getFirstName(), u.getLastName(), t.getTaskName(), t.getDescription(), t.getStartDate(), t.getEndDate(), t.getId());
+                if (u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER") && t.getEngineerProfile().getEmail().equals(u.getEmail()))
+                {
+                    EngineerDTO dto = new EngineerDTO(u.getId(),u.getFirstName(),u.getLastName(),t.getTaskName(), t.getDescription(), t.getStartDate(), t.getEndDate(), t.getId());
                     dtos.add(dto);
                 }
         }
         return dtos;
     }
-    public boolean CheckPermissionForRole(Authentication authentication,String privilege){
+    public boolean CheckPermissionForRole(Authentication authentication,String privilege) {
 
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             if (authority.getAuthority().equals(privilege)) {
-                return true ; // User has the required privilege
+                return true; // User has the required privilege
             }
 
-            }
+        }
         return false;
-
-
+    }
+    public boolean isInitial(User user){
+        return (user.isInitialAdmin() && !user.isChangedPassword());
+    }
+    public void changeInitialPassword(User user, String pass){
+        user.setPassword(new BCryptPasswordEncoder().encode(pass));
+        user.setChangedPassword(true);
+        userRepository.save(user);
     }
 }
