@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @JsonIgnoreProperties({"engineerProfile" , "project"})
 public class ProjectTask {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
     @Column(name = "start_date")

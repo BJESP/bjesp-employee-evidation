@@ -9,6 +9,7 @@ import com.example.demo.utils.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,7 @@ public class EngineerController {
 
     //ALSO USE FOR CREATE
     @PostMapping(value="/update-engineer-skill")
+    @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     public ResponseEntity UpdateEngineerSkill(@RequestBody EngineerSkillDTO engineerSkillDTO)
     {
         if(engineerSkillDTO.getRating() >5 || engineerSkillDTO.getRating() < 1)
@@ -46,6 +48,7 @@ public class EngineerController {
     }
 
     //ALSO USE FOR CREATE
+    @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     @PostMapping(value="/update-engineer-cv")
     public ResponseEntity UpdateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException {
         boolean createdCV = engineerService.UpdateEngineerCV(file, username);
@@ -66,12 +69,14 @@ public class EngineerController {
     }
 
     @PostMapping(value="/get-project-tasks")
+    @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     public ResponseEntity GetProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
         List<ProjectTask> projectTaskList = engineerService.GetProjectTasksForEnginner(enginnerEmailDTO);
         return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
     }
     @PostMapping(value="/get-project-and-project-tasks")
+    @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     public ResponseEntity GetProjectWithProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
         List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);

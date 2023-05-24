@@ -52,7 +52,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 			UserDetailsImpl userDetails=new UserDetailsImpl();;
 			userDetails.setUser(user);
+			System.out.println("ovo je dobijeno"+getAuthorities(user.getRoles()));
 			userDetails.setAuthorities((Collection<GrantedAuthority>) getAuthorities(user.getRoles()));
+			System.out.println(userDetails.getAuthorities());
 
 			return userDetails;
 			//return new org.springframework.security.core.userdetails.User(
