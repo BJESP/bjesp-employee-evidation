@@ -1,19 +1,20 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.AddEngineerToProjectDTO;
+import com.example.demo.dto.EmployeeDTO;
+import com.example.demo.dto.EngineerDTO;
 import com.example.demo.dto.ProjectDTO;
-import com.example.demo.model.EngineerProfile;
-import com.example.demo.model.Project;
-import com.example.demo.model.ProjectTask;
-import com.example.demo.model.User;
+import com.example.demo.model.*;
 import com.example.demo.repo.ProjectRepo;
 import com.example.demo.repo.ProjectTaskRepo;
 import com.example.demo.repo.UserRepo;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -60,6 +61,54 @@ public class ProjectService {
         projectTask.setDescription(addEngineerToProjectDTO.getDescription());
         projectTask.setStartDate(LocalDate.now());
         projectTaskRepository.save(projectTask);
+
+    }
+    public ArrayList<EmployeeDTO> getAllManagersOnProject(String projectId) {
+        Project p = projectRepository.getOne(Long.parseLong(projectId));
+        ArrayList<EmployeeDTO> dtos = new ArrayList<>();
+        ArrayList<ProjectManagerProfile> managerProfiles = (ArrayList<ProjectManagerProfile>) p.getManagers();
+        for (ProjectManagerProfile pm : managerProfiles) {
+            dtos.add(new EmployeeDTO(pm.getEmail(), pm.getFirstName(), pm.getLastName(), pm.getPhoneNumber(), pm.getAddress(), pm.getTitle(), pm.getRoles().stream().iterator().next().getName()));
+        }
+        return dtos;
+    }
+    public ArrayList<EmployeeDTO> getAllManagersNotOnProject(String projectId) {
+        Project p = projectRepository.getOne(Long.parseLong(projectId));
+        ArrayList<EmployeeDTO> dtos = new ArrayList<>();
+        List<ProjectManagerProfile> managerProfiles = p.getManagers();
+        ArrayList<User> allManagers = new ArrayList<User>();
+        ArrayList<User> all = (ArrayList<User>) userRepository.findAll();
+        for(User u:all){
+            if(u.getRoles().stream().iterator().next().getName().equals("ROLE_PROJECT_MANAGER"))
+                allManagers.add(u);
+        }
+        Iterator<User> iterator1 = allManagers.iterator();
+        while (iterator1.hasNext()) {
+            User element1 = iterator1.next();
+            Long id1 = element1.getId();
+            Iterator<ProjectManagerProfile> iterator2 = managerProfiles.iterator();
+            while (iterator2.hasNext()) {
+                ProjectManagerProfile element2 = iterator2.next();
+                if(element2.getId()!=null) {
+                    Long id2 = element2.getId();
+                    if (id1 == id2) {
+                        iterator1.remove();
+                    }
+                }
+            }
+        }
+        for (User pm : allManagers) {
+            dtos.add(new EmployeeDTO(pm.getEmail(), pm.getFirstName(), pm.getLastName(), pm.getPhoneNumber(), pm.getAddress(), pm.getTitle(), pm.getRoles().stream().iterator().next().getName()));
+        }
+        return dtos;
+    }
+    public void addManagerToProject (String projectId, String email){
+        User user = userRepository.findByEmail(email);
+        Project project = projectRepository.getOne(Long.parseLong(projectId));
+        List<ProjectManagerProfile> managerProfiles = project.getManagers();
+        managerProfiles.add((ProjectManagerProfile) user);
+        project.setManagers(managerProfiles);
+        projectRepository.save(project);
 
     }
 }

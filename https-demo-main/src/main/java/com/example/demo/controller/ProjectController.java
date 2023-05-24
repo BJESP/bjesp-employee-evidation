@@ -50,4 +50,19 @@ public class ProjectController {
         projectService.AddEngineerToProject(addEngineerToProjectDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+    @GetMapping(value="/managersWorking/{projectId}")
+    public ResponseEntity<List<EmployeeDTO>> getAllManagersOnProject(@PathVariable String projectId){
+        List<EmployeeDTO> managersDTOS = projectService.getAllManagersOnProject(projectId);
+        return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
+    }
+    @GetMapping(value="/managersNotWorking/{projectId}")
+    public ResponseEntity<List<EmployeeDTO>> getAllManagersNotOnProject(@PathVariable String projectId){
+        List<EmployeeDTO> managersDTOS = projectService.getAllManagersNotOnProject(projectId);
+        return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
+    }
+    @PostMapping(value="/addManager/{email}/{projectId}")
+    public ResponseEntity<HttpStatus> AddManagerToProject(@PathVariable String email, @PathVariable String projectId){
+        projectService.addManagerToProject(projectId, email);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

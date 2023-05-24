@@ -11,7 +11,7 @@ import com.example.demo.repo.UserRepo;
 import com.example.demo.utils.HMAC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -81,7 +81,9 @@ public class UserService {
         user.setFirstName(userRegDTO.getFirstName());
         user.setLastName(userRegDTO.getLastName());
         user.setPhoneNumber(userRegDTO.getPhoneNumber());
-        user.setPassword(userRegDTO.getPassword());
+        if(userRegDTO.getPassword()!=null){
+            user.setPassword(new BCryptPasswordEncoder().encode(userRegDTO.getPassword()));
+        }
         user.setTitle(userRegDTO.getTitle());
         user.getAddress().setCountry(userRegDTO.getCountry());
         user.getAddress().setCity(userRegDTO.getCity());
@@ -221,16 +223,22 @@ public class UserService {
         }
         return dtos;
     }
-    public boolean CheckPermissionForRole(Authentication authentication,String privilege){
+    public boolean CheckPermissionForRole(Authentication authentication,String privilege) {
 
         for (GrantedAuthority authority : authentication.getAuthorities()) {
             if (authority.getAuthority().equals(privilege)) {
-                return true ; // User has the required privilege
+                return true; // User has the required privilege
             }
 
-            }
+        }
         return false;
-
-
+    }
+    public boolean isInitial(User user){
+        return (user.isInitialAdmin() && !user.isChangedPassword());
+    }
+    public void changeInitialPassword(User user, String pass){
+        user.setPassword(new BCryptPasswordEncoder().encode(pass));
+        user.setChangedPassword(true);
+        userRepository.save(user);
     }
 }
