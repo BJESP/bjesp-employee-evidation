@@ -60,8 +60,8 @@ public class ProjectController {
         List<EmployeeDTO> managersDTOS = projectService.getAllManagersNotOnProject(projectId);
         return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
     }
-    @PostMapping(value="/addManager/{email}/{projectId}")
-    public ResponseEntity<HttpStatus> AddManagerToProject(@PathVariable String email, @PathVariable String projectId){
+    @PostMapping(value="/addManagerAdmin/{email}/{projectId}")
+    public ResponseEntity<HttpStatus> AddManagerToProject(@PathVariable String email,@PathVariable String projectId){
         projectService.addManagerToProject(projectId, email);
         return new ResponseEntity<>(HttpStatus.OK);
     }

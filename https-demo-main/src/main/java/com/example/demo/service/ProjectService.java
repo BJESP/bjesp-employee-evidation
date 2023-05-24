@@ -5,9 +5,7 @@ import com.example.demo.dto.EmployeeDTO;
 import com.example.demo.dto.EngineerDTO;
 import com.example.demo.dto.ProjectDTO;
 import com.example.demo.model.*;
-import com.example.demo.repo.ProjectRepo;
-import com.example.demo.repo.ProjectTaskRepo;
-import com.example.demo.repo.UserRepo;
+import com.example.demo.repo.*;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +23,10 @@ public class ProjectService {
     private ProjectTaskRepo projectTaskRepository;
     @Autowired
     private UserRepo userRepository;
+    @Autowired
+    private EngineerRepo engineerRepo;
+    @Autowired
+    private ProjectManagerRepo projectManagerRepo;
 
     public List<ProjectDTO> getAll(){
         ArrayList<Project> all = (ArrayList<Project>) projectRepository.findAll();
@@ -51,11 +53,11 @@ public class ProjectService {
         return withId;
     }
     public void AddEngineerToProject (AddEngineerToProjectDTO addEngineerToProjectDTO){
-        User user = userRepository.getOne(addEngineerToProjectDTO.getEngineerId());
+        EngineerProfile user = engineerRepo.getOne(addEngineerToProjectDTO.getEngineerId());
         Project project = projectRepository.getOne(addEngineerToProjectDTO.getProjectId());
         ProjectTask projectTask = new ProjectTask();
         projectTask.setProject(project);
-        projectTask.setUser(user);
+        projectTask.setEngineerProfile(user);
         projectTask.setTaskName(addEngineerToProjectDTO.getTaskName());
         projectTask.setEndDate(addEngineerToProjectDTO.getEndDate());
         projectTask.setDescription(addEngineerToProjectDTO.getDescription());
@@ -66,7 +68,7 @@ public class ProjectService {
     public ArrayList<EmployeeDTO> getAllManagersOnProject(String projectId) {
         Project p = projectRepository.getOne(Long.parseLong(projectId));
         ArrayList<EmployeeDTO> dtos = new ArrayList<>();
-        ArrayList<ProjectManagerProfile> managerProfiles = (ArrayList<ProjectManagerProfile>) p.getManagers();
+        List<ProjectManagerProfile> managerProfiles = p.getManagers();
         for (ProjectManagerProfile pm : managerProfiles) {
             dtos.add(new EmployeeDTO(pm.getEmail(), pm.getFirstName(), pm.getLastName(), pm.getPhoneNumber(), pm.getAddress(), pm.getTitle(), pm.getRoles().stream().iterator().next().getName()));
         }
@@ -76,15 +78,11 @@ public class ProjectService {
         Project p = projectRepository.getOne(Long.parseLong(projectId));
         ArrayList<EmployeeDTO> dtos = new ArrayList<>();
         List<ProjectManagerProfile> managerProfiles = p.getManagers();
-        ArrayList<User> allManagers = new ArrayList<User>();
-        ArrayList<User> all = (ArrayList<User>) userRepository.findAll();
-        for(User u:all){
-            if(u.getRoles().stream().iterator().next().getName().equals("ROLE_PROJECT_MANAGER"))
-                allManagers.add(u);
-        }
-        Iterator<User> iterator1 = allManagers.iterator();
+        ArrayList<ProjectManagerProfile> allManagers = (ArrayList<ProjectManagerProfile>) projectManagerRepo.findAllByIsActive(true);
+
+        Iterator<ProjectManagerProfile> iterator1 = allManagers.iterator();
         while (iterator1.hasNext()) {
-            User element1 = iterator1.next();
+            ProjectManagerProfile element1 = iterator1.next();
             Long id1 = element1.getId();
             Iterator<ProjectManagerProfile> iterator2 = managerProfiles.iterator();
             while (iterator2.hasNext()) {
@@ -103,12 +101,12 @@ public class ProjectService {
         return dtos;
     }
     public void addManagerToProject (String projectId, String email){
-        User user = userRepository.findByEmail(email);
+        ProjectManagerProfile pm = projectManagerRepo.findByEmail(email);
         Project project = projectRepository.getOne(Long.parseLong(projectId));
-        List<ProjectManagerProfile> managerProfiles = project.getManagers();
-        managerProfiles.add((ProjectManagerProfile) user);
-        project.setManagers(managerProfiles);
-        projectRepository.save(project);
+        List<Project> projects = pm.getProjects();
+        projects.add(project);
+        pm.setProjects(projects);
+        projectManagerRepo.save(pm);
 
     }
 }

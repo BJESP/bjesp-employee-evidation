@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import com.example.demo.dto.RegistrationDTO;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -15,4 +17,18 @@ public class ProjectManagerProfile extends User {
     )
     private List<Project> projects;
 
+    public ProjectManagerProfile() {
+    }
+
+    public ProjectManagerProfile(RegistrationDTO userRegistrationDTO) {
+        super(userRegistrationDTO);
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
 }

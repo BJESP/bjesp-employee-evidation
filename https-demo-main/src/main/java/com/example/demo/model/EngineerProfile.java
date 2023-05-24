@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.example.demo.dto.RegistrationDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +22,12 @@ public class EngineerProfile extends User {
     @OneToMany(mappedBy = "engineerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectTask> tasks;
 
+    public EngineerProfile() {
+    }
 
+    public EngineerProfile(RegistrationDTO userRegistrationDTO) {
+        super(userRegistrationDTO);
+    }
 
-    // Constructors, getters, and setters
+// Constructors, getters, and setters
 }
