@@ -32,7 +32,7 @@ public class ProjectService {
         ArrayList<Project> all = (ArrayList<Project>) projectRepository.findAll();
         List<ProjectDTO> dtos = new ArrayList<>();
         for(Project p:all){
-            ProjectDTO dto = new ProjectDTO(p.getName(), p.getDuration(), p.getDescription(), p.getId().toString());
+            ProjectDTO dto = new ProjectDTO(p.getId(), p.getName(), p.getDuration(), p.getDescription());
             dtos.add(dto);
         }
         return dtos;

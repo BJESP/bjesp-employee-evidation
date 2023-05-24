@@ -212,11 +212,11 @@ public class UserService {
         return dtos;
     }
     public List<EngineerDTO> getAllEngineersOnProject(String projectId) {
-        ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
-        ArrayList<User> eng = new ArrayList<User>();
+        //ArrayList<User> all = (ArrayList<User>) userRepository.findAllByIsActive(true);
+        List<EngineerProfile> eng = engineerRepo.findAllByIsActive(true);
         ArrayList<ProjectTask> onProject = projectService.getAllProjectTasksIdByProject(projectId);
         List<EngineerDTO> dtos = new ArrayList<>();
-        for (User u : all) {
+        for (User u : eng) {
             for (ProjectTask t : onProject)
                 if (u.getRoles().stream().iterator().next().getName().equals("ROLE_SOFTWARE_ENGINEER") && t.getEngineerProfile().getEmail().equals(u.getEmail()))
                 {
