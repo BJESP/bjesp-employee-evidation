@@ -6,10 +6,16 @@ import com.example.demo.repo.SkillRepo;
 import com.example.demo.repo.UserRepo;
 import com.example.demo.service.EngineerService;
 import com.example.demo.utils.PasswordValidator;
+
+import com.example.demo.service.UserService;
+import org.hibernate.annotations.Check;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,6 +29,8 @@ public class EngineerController {
 
     @Autowired
     EngineerService engineerService;
+    @Autowired
+    UserService userService;
 
     @Autowired
     private PasswordValidator passwordValidator;
@@ -32,66 +40,137 @@ public class EngineerController {
     @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     public ResponseEntity UpdateEngineerSkill(@RequestBody EngineerSkillDTO engineerSkillDTO)
     {
-        if(engineerSkillDTO.getRating() >5 || engineerSkillDTO.getRating() < 1)
-        {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if(CheckPermissionForRole("UPDATE_ENGINEER_SKILL")) {
+            if (engineerSkillDTO.getRating() > 5 || engineerSkillDTO.getRating() < 1) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            Skill createdSkill = engineerService.UpdateEngineerSkill(engineerSkillDTO);
+
+            if (createdSkill == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            return new ResponseEntity<>(createdSkill, HttpStatus.OK);
         }
-
-        Skill createdSkill = engineerService.UpdateEngineerSkill(engineerSkillDTO);
-
-        if(createdSkill == null)
-        {
+        else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+    @PostMapping(value="/create-engineer-skill")
+    @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
+    public ResponseEntity CreateEngineerSkill(@RequestBody EngineerSkillDTO engineerSkillDTO)
+    {
+        if(CheckPermissionForRole("CREATE_ENGINEER_SKILL")) {
+            if (engineerSkillDTO.getRating() > 5 || engineerSkillDTO.getRating() < 1) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
 
-        return new ResponseEntity<>(createdSkill, HttpStatus.OK);
+            Skill createdSkill = engineerService.UpdateEngineerSkill(engineerSkillDTO);
+
+            if (createdSkill == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            return new ResponseEntity<>(createdSkill, HttpStatus.OK);
+        }
+         else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     //ALSO USE FOR CREATE
     @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     @PostMapping(value="/update-engineer-cv")
     public ResponseEntity UpdateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException {
+        if(CheckPermissionForRole("UPDATE_ENGINEER_CV")) {
         boolean createdCV = engineerService.UpdateEngineerCV(file, username);
+            if (createdCV == false) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
 
-        if(createdCV == false)
-        {
+            return new ResponseEntity<>(createdCV, HttpStatus.OK);
+        }
+        else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+    @PostMapping(value="/create-engineer-cv")
+    @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
+    public ResponseEntity CreateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException {
+        if(CheckPermissionForRole("CREATE_ENGINEER_CV")) {
+            boolean createdCV = engineerService.UpdateEngineerCV(file, username);
 
-        return new ResponseEntity<>(createdCV, HttpStatus.OK);
+            if (createdCV == false) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            return new ResponseEntity<>(createdCV, HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(value="/get-engineer-skills")
     public ResponseEntity GetSkillsForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
-        List<Skill> skillsList = engineerService.GetSkillsForEnginner(enginnerEmailDTO);
-        return new ResponseEntity<>(skillsList, HttpStatus.OK);
+        if(CheckPermissionForRole("READ_ENGINEER_SKILL")) {
+            List<Skill> skillsList = engineerService.GetSkillsForEnginner(enginnerEmailDTO);
+            return new ResponseEntity<>(skillsList, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(value="/get-project-tasks")
     @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     public ResponseEntity GetProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
+
     {
-        List<ProjectTask> projectTaskList = engineerService.GetProjectTasksForEnginner(enginnerEmailDTO);
-        return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+        if(CheckPermissionForRole("READ_ENGINEER_TASK")) {
+            List<ProjectTask> projectTaskList = engineerService.GetProjectTasksForEnginner(enginnerEmailDTO);
+            return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     @PostMapping(value="/get-project-and-project-tasks")
     @PreAuthorize("hasRole('SOFTWARE_ENGINEER')")
     public ResponseEntity GetProjectWithProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
-        List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);
-        return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+        if(CheckPermissionForRole("READ_PROJECT_TASK")) {
+            List<EngineerProjectWithProjectTaskDTO> projectTaskList = engineerService.GetProjectWithProjectTasksForEnginner(enginnerEmailDTO);
+            return new ResponseEntity<>(projectTaskList, HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping(value="/update-project-task")
     public ResponseEntity UpdateProjectTaskForEngineer(@RequestBody UpdateProjectTaskRequestDTO requestDTO){
+        if(CheckPermissionForRole("UPDATE_ENGINEER_TASK")) {
 
-        boolean changed = engineerService.UpdateProjectTaskForEngineer(requestDTO);
-        if (!changed) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            boolean changed = engineerService.UpdateProjectTaskForEngineer(requestDTO);
+            if (!changed) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(HttpStatus.OK);
         }
+        else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+    public boolean CheckPermissionForRole(String privilege){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean hasPermission = userService.CheckPermissionForRole(authentication,privilege);
+        return hasPermission;
+
     }
 
     @PostMapping(value="/account-details")

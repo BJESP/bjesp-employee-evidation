@@ -50,19 +50,47 @@ public class UserController {
     @Autowired
     private RolePrivilegeService rolePrivilegeService;
     @PostMapping(value="/change-permission")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity ChangeRolePermissions(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
-        rolePrivilegeService.AddRolePermission(rolePrivilegeDTO);
-        return new ResponseEntity(HttpStatus.OK);
+        if(CheckPermissionForRole("CREATE_PERMISSION")) {
+            rolePrivilegeService.AddRolePermission(rolePrivilegeDTO);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
     }
 
+    @GetMapping(value="/get-not-role-permissions/{roleId}")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity GetNotRolePermissions(@PathVariable Long roleId){
+        List<Privilege> privileges = rolePrivilegeService.GetNotRolePermissions(roleId);
+        return new ResponseEntity<>(privileges,HttpStatus.OK);
+    }
+
+    @GetMapping(value="/get-role-permissions/{roleId}")
+    //@PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity GetRolePermissions(@PathVariable Long roleId){
+        List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(roleId);
+        return new ResponseEntity<>(privileges,HttpStatus.OK);
+    }
+
+
     @PostMapping(value="/delete-permission")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity DeleteRolePermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
-        rolePrivilegeService.DeleteRolePermission(rolePrivilegeDTO);
-        return new ResponseEntity(HttpStatus.OK);
+        if(CheckPermissionForRole("DELETE_PERMISSION")) {
+            rolePrivilegeService.DeleteRolePermission(rolePrivilegeDTO);
+            return new ResponseEntity(HttpStatus.OK);
+        }
+        else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
     }
     @GetMapping(value="/get-permission/{roleId}")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity GetPermissionForRole(@PathVariable Long roleId){
         Role role = rolePrivilegeService.GetRoleById(roleId);
         List<Privilege> newList  =(List) role.getPrivileges();
@@ -289,6 +317,7 @@ public class UserController {
         return new ResponseEntity<Boolean>(userService.isInitial(user), HttpStatus.OK);
     }
 
+
     @PostMapping("/edit/admin/pass/{pass}")
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HttpStatus> changeInitialPassword(HttpServletRequest request, @PathVariable String pass) {
@@ -301,4 +330,16 @@ public class UserController {
         userService.changeInitialPassword(user, pass);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+
+    public boolean CheckPermissionForRole(String privilege){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean hasPermission = userService.CheckPermissionForRole(authentication,privilege);
+        return hasPermission;
+
+    }
+
+
+
+
 }

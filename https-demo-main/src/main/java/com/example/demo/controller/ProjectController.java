@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,23 +34,47 @@ public class ProjectController {
     @PostMapping()
     //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HttpStatus> createProject(@RequestBody ProjectDTO data) {
-        projectService.createProject(data);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(CheckPermissionForRole("CREATE_PROJECT")) {
+            projectService.createProject(data);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     @GetMapping(value="/engineers/{projectId}")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EngineerDTO>> getAllEngineersNotOnProject(@PathVariable String projectId){
         List<EngineerDTO> engineerDTOS = userService.getAllEngineersNotOnProject(projectId);
         return new ResponseEntity<>(engineerDTOS,HttpStatus.OK);
     }
     @GetMapping(value="/engineersWorking/{projectId}")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EngineerDTO>> getAllEngineersOnProject(@PathVariable String projectId){
-        List<EngineerDTO> engineerDTOS = userService.getAllEngineersOnProject(projectId);
-        return new ResponseEntity<>(engineerDTOS,HttpStatus.OK);
+        if(CheckPermissionForRole("READ_ENGINEERS")) {
+            List<EngineerDTO> engineerDTOS = userService.getAllEngineersOnProject(projectId);
+            return new ResponseEntity<>(engineerDTOS, HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     @PostMapping(value="/addTask")
+    //@PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity AddEngineerToTask(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO){
-        projectService.AddEngineerToProject(addEngineerToProjectDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(CheckPermissionForRole("CREATE_PROJECT_TASK")) {
+            projectService.AddEngineerToProject(addEngineerToProjectDTO);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public boolean CheckPermissionForRole(String privilege){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean hasPermission = userService.CheckPermissionForRole(authentication,privilege);
+        return hasPermission;
+
     }
     @GetMapping(value="/managersWorking/{projectId}")
     public ResponseEntity<List<EmployeeDTO>> getAllManagersOnProject(@PathVariable String projectId){

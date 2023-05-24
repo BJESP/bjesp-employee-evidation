@@ -8,6 +8,8 @@ import com.example.demo.repo.RoleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.security.Permission;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,5 +65,27 @@ public class RolePrivilegeService {
             }
         }
         roleRepository.save(role);
+    }
+
+    public List<Privilege> GetNotRolePermissions(Long roleId){
+        Role role = roleRepository.findById(roleId).orElseGet(null);
+        List<Privilege> rolePrivileges = (List)role.getPrivileges();
+        List<Privilege> allPrivileges = privilegeRepository.findAll();
+        List<Privilege> neededPrivileges = new ArrayList<>();
+        for (Privilege privilege : allPrivileges) {
+            if (!rolePrivileges.contains(privilege)) {
+                neededPrivileges.add(privilege);
+            }
+        }
+
+        return neededPrivileges;
+
+
+    }
+    public List<Privilege> GetRolePermissions(Long roleId){
+        Role role = roleRepository.findById(roleId).orElseGet(null);
+        List<Privilege> rolePrivileges = (List)role.getPrivileges();
+        return rolePrivileges;
+
     }
 }
