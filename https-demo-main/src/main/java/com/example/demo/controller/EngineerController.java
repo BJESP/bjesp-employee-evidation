@@ -47,8 +47,8 @@ public class EngineerController {
 
     //ALSO USE FOR CREATE
     @PostMapping(value="/update-engineer-cv")
-    public ResponseEntity UpdateEngineerCV(@ModelAttribute EngineerCVDocumentDTO CVDocument) throws IOException {
-        boolean createdCV = engineerService.UpdateEngineerCV(CVDocument);
+    public ResponseEntity UpdateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException {
+        boolean createdCV = engineerService.UpdateEngineerCV(file, username);
 
         if(createdCV == false)
         {

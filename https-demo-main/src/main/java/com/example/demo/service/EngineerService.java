@@ -59,16 +59,16 @@ public class EngineerService
         return skill;
     }
 
-    public boolean UpdateEngineerCV(EngineerCVDocumentDTO cvDocument) throws IOException {
+    public boolean UpdateEngineerCV(MultipartFile file, String username) throws IOException {
 
-        System.out.println("EMAIL: " + cvDocument.getEngineerProfileEmail());
-        if(!userRepo.existsByEmail(cvDocument.getEngineerProfileEmail()))
+        System.out.println("EMAIL: " + username);
+        if(!userRepo.existsByEmail(username))
         {
             System.out.println("NEMA TOG USERA");
             return false;
         }
 
-        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(cvDocument.getEngineerProfileEmail()));
+        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
 
 
         if (newCvDocument == null)
@@ -77,9 +77,9 @@ public class EngineerService
             newCvDocument.setInternalName(UUID.randomUUID().toString());
         }
 
-        saveFile(newCvDocument.getInternalName(), cvDocument.getDocumentData());
-        newCvDocument.setDocumentName(cvDocument.getDocumentName());
-        newCvDocument.setEngineerProfile((EngineerProfile) userRepo.findByEmail(cvDocument.getEngineerProfileEmail()));
+        saveFile(newCvDocument.getInternalName(), file);
+        newCvDocument.setDocumentName(file.getOriginalFilename());
+        newCvDocument.setEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
 
         cvDocumentRepo.save(newCvDocument);
 
