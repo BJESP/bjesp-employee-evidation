@@ -1,7 +1,9 @@
 package com.example.demo.utils;
 
-import java.util.regex.Pattern;
+import org.springframework.stereotype.Component;
 
+import java.util.regex.Pattern;
+@Component
 public class GeneralValidation {
     public GeneralValidation() {
     }

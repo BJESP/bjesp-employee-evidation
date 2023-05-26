@@ -4,8 +4,10 @@ import com.example.demo.dto.*;
 import com.example.demo.model.EngineerProfile;
 import com.example.demo.model.ProjectManagerProfile;
 import com.example.demo.model.ProjectTask;
+import com.example.demo.model.ValidationResult;
 import com.example.demo.service.ProjectManagerService;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,9 @@ public class ProjectManagerController {
     ProjectManagerService projectManagerService;
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserValidation userValidation;
 
     @PostMapping(value="/get-projects")
     @PreAuthorize("hasRole('PROJECT_MANAGER')")
@@ -88,14 +93,23 @@ public class ProjectManagerController {
     @PreAuthorize("hasRole('PROJECT_MANAGER')")
     public ResponseEntity UpdateProjectManagerInformation(@RequestBody ProjectManagerUpdateDTO projectManagerUpdateDTO){
         if(CheckPermissionForRole("UPDATE_PROJECT_MANAGER")) {
+            try {
+                ValidationResult validationResult = userValidation.validEditProjectManagerDTO(projectManagerUpdateDTO);
+                if (validationResult.isValid()) {
+                    ProjectManagerProfile projectManager = projectManagerService.UpdateProjectManagerInformation(projectManagerUpdateDTO);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }
+                else{
+                    return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+                }
 
-            ProjectManagerProfile projectManager = projectManagerService.UpdateProjectManagerInformation(projectManagerUpdateDTO);
-            if (projectManager == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-
-            return new ResponseEntity<>(new ProjectManagerUpdateDTO(projectManager), HttpStatus.OK);
         }
+
+        catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+
+    }
         else{
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
         }
@@ -120,8 +134,18 @@ public class ProjectManagerController {
     @PreAuthorize("hasRole('PROJECT_MANAGER')")
     public ResponseEntity AddEngineerToProject(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO){
         if(CheckPermissionForRole("CREATE_PROJECT_TASK")) {
-            projectManagerService.AddEngineerToProject(addEngineerToProjectDTO);
-            return new ResponseEntity<>(HttpStatus.OK);
+            try {
+                ValidationResult validationResult = userValidation.validAddEngineerToProject(addEngineerToProjectDTO);
+                if (validationResult.isValid()) {
+                    projectManagerService.AddEngineerToProject(addEngineerToProjectDTO);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+                }
+            }catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+
+            }
         }
         else{
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
@@ -134,12 +158,18 @@ public class ProjectManagerController {
     public ResponseEntity UpdateProjectTaskForEngineer(@RequestBody UpdateProjectTaskDTO updateProjectTaskDTO){
 
         if(CheckPermissionForRole("UPDATE_ENGINEER_TASK")) {
-            ProjectTask projectTask = projectManagerService.UpdateProjectTaskForEngineer(updateProjectTaskDTO);
-            if (projectTask == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-
-            return new ResponseEntity<>(projectTask, HttpStatus.OK);
+            try {
+                ValidationResult validationResult = userValidation.validChangeEngineer(updateProjectTaskDTO);
+                if (validationResult.isValid()) {
+                    ProjectTask projectTask = projectManagerService.UpdateProjectTaskForEngineer(updateProjectTaskDTO);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                }
+                else{
+                    return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+                }
+            }catch(IllegalArgumentException e){
+                    return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
+                }
         }
         else{
             return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);

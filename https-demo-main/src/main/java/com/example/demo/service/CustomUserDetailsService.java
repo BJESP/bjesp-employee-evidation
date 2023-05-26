@@ -53,7 +53,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 			UserDetailsImpl userDetails=new UserDetailsImpl();;
 			userDetails.setUser(user);
 			System.out.println("ovo je dobijeno"+getAuthorities(user.getRoles()));
+			//System.out.println(us);
 			userDetails.setAuthorities((Collection<GrantedAuthority>) getAuthorities(user.getRoles()));
+			//userDetails.
 			System.out.println(userDetails.getAuthorities());
 
 			return userDetails;
@@ -75,7 +77,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		List<Privilege> collection = new ArrayList<>();
 		for (Role role : roles) {
 			privileges.add(role.getName());
-			//collection.addAll(role.getPrivileges());
+			collection.addAll(role.getPrivileges());
 		}
 		for (Privilege item : collection) {
 			privileges.add(item.getName());
@@ -90,5 +92,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 		}
 		return authorities;
 	}
+
 
 }
