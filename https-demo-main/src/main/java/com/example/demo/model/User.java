@@ -69,6 +69,14 @@ public class User implements UserDetails {
     @Column
     private boolean initialAdmin;
 
+
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+
     public boolean isInitialAdmin() {
         return initialAdmin;
     }
@@ -104,6 +112,8 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return isActive();
     }
+
+
 
     public User(RegistrationDTO userRegistrationDTO) {
         this.setFirstName(userRegistrationDTO.getFirstName());
