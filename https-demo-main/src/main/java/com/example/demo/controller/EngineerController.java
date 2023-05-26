@@ -175,28 +175,34 @@ public class EngineerController {
 
     @PostMapping(value="/account-details")
     public ResponseEntity getAccountDetails(@RequestBody PasswordlessLoginDTO enginnerEmailDTO) {
-
-        EngineerAccountDetailsDTO accountDetails = engineerService.GetAccountDetails(enginnerEmailDTO.getUsername());
-        if (accountDetails == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if(CheckPermissionForRole("READ_ENGINEER_ACCOUNT_DETAILS")) {
+            EngineerAccountDetailsDTO accountDetails = engineerService.GetAccountDetails(enginnerEmailDTO.getUsername());
+            if (accountDetails == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(accountDetails, HttpStatus.OK);
         }
-        return new ResponseEntity<>(accountDetails, HttpStatus.OK);
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @PostMapping(value="/account-details-update")
     public ResponseEntity updateAccountDetails(@RequestBody EngineerAccountDetailsDTO engineerAccountDetailsDTO) {
-
-        System.out.println("APDEJTUJEM DETALJE");
-        if(engineerAccountDetailsDTO.getPassword() != null)
+        if(CheckPermissionForRole("UPDATE_ENGINEER_ACCOUNT_DETAILS"))
         {
-            if (!passwordValidator.isValid(engineerAccountDetailsDTO.getPassword()))
+            System.out.println("APDEJTUJEM DETALJE");
+            if (engineerAccountDetailsDTO.getPassword() != null) {
+                if (!passwordValidator.isValid(engineerAccountDetailsDTO.getPassword()))
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+
+            boolean changed = engineerService.UpdateAccountDetails(engineerAccountDetailsDTO);
+            if (!changed) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        boolean changed = engineerService.UpdateAccountDetails(engineerAccountDetailsDTO);
-        if (!changed) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }
