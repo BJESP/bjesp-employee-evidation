@@ -304,9 +304,6 @@ public class UserValidation extends  GeneralValidation{
         } else if (HasLessOrGreaterThanCharacter(city)) {
             throw new IllegalArgumentException("Your city shouldn't contain special character < or >.");
             //return false;
-        } else if (HasSpace(city)) {
-            throw new IllegalArgumentException("Your city shouldn't contain spaces!");
-            //return false;
         } else if (IsTooShort(city, 2)) {
             throw new IllegalArgumentException("Your city should contain at least 2 characters!");
             //return false;
