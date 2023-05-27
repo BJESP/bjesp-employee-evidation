@@ -28,55 +28,33 @@ public class ProjectController {
     private UserService userService;
 
     @GetMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Project', 'READ')")
     public ResponseEntity<List<ProjectDTO>> getAll(HttpServletRequest request) {
-        if(CheckPermissionForRole("READ_PROJECTS")) {
             return new ResponseEntity<List<ProjectDTO>>(projectService.getAll(), HttpStatus.OK);
-        } else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @PostMapping()
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Project', 'CREATE')")
     public ResponseEntity<HttpStatus> createProject(@RequestBody ProjectDTO data) {
-        if(CheckPermissionForRole("CREATE_PROJECT")) {
             projectService.createProject(data);
             return new ResponseEntity<>(HttpStatus.OK);
-        } else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @GetMapping(value="/engineers/{projectId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Task', 'READ')")
     public ResponseEntity<List<EngineerDTO>> getAllEngineersNotOnProject(@PathVariable String projectId){
-        if(CheckPermissionForRole("READ_PROJECT_TASK")) {
             List<EngineerDTO> engineerDTOS = userService.getAllEngineersNotOnProject(projectId);
             return new ResponseEntity<>(engineerDTOS,HttpStatus.OK);
-        } else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @GetMapping(value="/engineersWorking/{projectId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Task', 'READ')")
     public ResponseEntity<List<EngineerDTO>> getAllEngineersOnProject(@PathVariable String projectId){
-        if(CheckPermissionForRole("READ_PROJECT_TASK")) {
             List<EngineerDTO> engineerDTOS = userService.getAllEngineersOnProject(projectId);
             return new ResponseEntity<>(engineerDTOS, HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @PostMapping(value="/addTask")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Project_task', 'CREATE')")
     public ResponseEntity AddEngineerToTask(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO){
-        if(CheckPermissionForRole("CREATE_PROJECT_TASK")) {
             projectService.AddEngineerToProject(addEngineerToProjectDTO);
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     public boolean CheckPermissionForRole(String privilege){
@@ -86,36 +64,22 @@ public class ProjectController {
 
     }
     @GetMapping(value="/managersWorking/{projectId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Project_managers', 'READ')")
     public ResponseEntity<List<EmployeeDTO>> getAllManagersOnProject(@PathVariable String projectId){
-        if(CheckPermissionForRole("READ_PROJECT_MANAGERS")) {
             List<EmployeeDTO> managersDTOS = projectService.getAllManagersOnProject(projectId);
             return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @GetMapping(value="/managersNotWorking/{projectId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Project_managers', 'READ')")
     public ResponseEntity<List<EmployeeDTO>> getAllManagersNotOnProject(@PathVariable String projectId){
-        if(CheckPermissionForRole("READ_PROJECT_MANAGERS")) {
             List<EmployeeDTO> managersDTOS = projectService.getAllManagersNotOnProject(projectId);
             return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @PostMapping(value="/addManagerAdmin/{email}/{projectId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Project_managers', 'UPDATE')")
     public ResponseEntity<HttpStatus> AddManagerToProject(@PathVariable String email,@PathVariable String projectId){
-        if(CheckPermissionForRole("UPDATE_PROJECT_MANAGERS")) {
             projectService.addManagerToProject(projectId, email);
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+
     }
 }
