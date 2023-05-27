@@ -23,7 +23,14 @@ public class UserValidation extends  GeneralValidation{
             validLastName(engineerAccountDetailsDTO.getFirstName());
             validUserEmail(engineerAccountDetailsDTO.getEmail());
             validUserEmail(engineerAccountDetailsDTO.getUsername());
-            validPassword(engineerAccountDetailsDTO.getPassword());
+            if(engineerAccountDetailsDTO.getPassword() != null)
+            {
+                if(!engineerAccountDetailsDTO.getPassword().equals(""))
+                {
+                    validPassword(engineerAccountDetailsDTO.getPassword());
+                }
+            }
+
             validAddress(engineerAccountDetailsDTO.getAddress());
             validPhoneNumber(engineerAccountDetailsDTO.getPhoneNumber());
 
@@ -355,36 +362,21 @@ public class UserValidation extends  GeneralValidation{
         } else if (HasLessOrGreaterThanCharacter(street)) {
             throw new IllegalArgumentException("Your street shouldn't contain special character < or >.");
             //return false;
-        } else if (HasSpace(street)) {
-            throw new IllegalArgumentException("Your street shouldn't contain spaces!");
-            //return false;
         } else if (IsTooShort(street, 5)) {
             throw new IllegalArgumentException("Your street should contain at least 2 characters!");
             //return false;
         } else if (IsTooLong(street, 35)) {
             throw new IllegalArgumentException("Your street shouldn't contain more than 35 characters!");
             //return false;
-        } else if (!HasUppercaseLetterAtStartOnly(street)) {
-            throw new IllegalArgumentException("Your street needs to have one uppercase letter at the start!");
-            //return false;
         }
         return true;
     }
 
     private boolean validStreetNumber(String streetNumber) {
-        int number = Integer.parseInt(streetNumber);
         if (streetNumber.isBlank()) {
             throw new IllegalArgumentException("Your street number needs to be inserted!");
             //return false;
 
-        }
-        else if (number > 100){
-            throw new IllegalArgumentException("Street number should be less than 100 ");
-            //return false;
-        }
-        else if (number < 0){
-            throw new IllegalArgumentException("Street number should be positive number");
-            //return false;
         }
         return true;
     }
