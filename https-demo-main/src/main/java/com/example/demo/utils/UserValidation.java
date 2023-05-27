@@ -1,9 +1,8 @@
 package com.example.demo.utils;
 
-import com.example.demo.dto.AddEngineerToProjectDTO;
-import com.example.demo.dto.ProjectManagerUpdateDTO;
-import com.example.demo.dto.UpdateProjectTaskDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.Address;
+import com.example.demo.model.EngineerAccountDetailsDTO;
 import com.example.demo.model.ValidationResult;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +16,46 @@ public class UserValidation extends  GeneralValidation{
 
     }
 
+    public ValidationResult validUpdateEngineerAccountDetailsDTO(EngineerAccountDetailsDTO engineerAccountDetailsDTO)
+    {
+        try {
+            validFirstName(engineerAccountDetailsDTO.getFirstName());
+            validLastName(engineerAccountDetailsDTO.getFirstName());
+            validUserEmail(engineerAccountDetailsDTO.getEmail());
+            validUserEmail(engineerAccountDetailsDTO.getUsername());
+            validPassword(engineerAccountDetailsDTO.getPassword());
+            validAddress(engineerAccountDetailsDTO.getAddress());
+            validPhoneNumber(engineerAccountDetailsDTO.getPhoneNumber());
+
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
+
+    public ValidationResult validUpdateProjectTaskRequestDTO(UpdateProjectTaskRequestDTO updateProjectTaskDTO)
+    {
+        try {
+            validTaskName(updateProjectTaskDTO.getTaskName());
+
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
+
+    public ValidationResult validPasswordlessLoginDTO(PasswordlessLoginDTO passwordlessLoginDTO)
+    {
+        try {
+            validUserEmail(passwordlessLoginDTO.getUsername());
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
 
     public ValidationResult validEditProjectManagerDTO(ProjectManagerUpdateDTO projectManagerUpdateDTO){
         try {
@@ -75,7 +114,15 @@ public class UserValidation extends  GeneralValidation{
 
     }
 
+    public boolean validRating(int rating)
+    {
+        if (rating > 5 || rating < 1)
+        {
+            throw new IllegalArgumentException("Your rating must be in range 1-5!");
+        }
 
+        return true;
+    }
     public boolean validUserEmail(String userEmail) {
         if (userEmail.isBlank()) {
             throw new IllegalArgumentException("Your email needs to be inserted!");
