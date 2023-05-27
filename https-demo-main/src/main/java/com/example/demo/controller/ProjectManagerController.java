@@ -34,51 +34,41 @@ public class ProjectManagerController {
     UserValidation userValidation;
 
     @PostMapping(value="/get-projects")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+    //@PreAuthorize("hasRole('PROJECT_MANAGER')")
+    @PreAuthorize("hasPermission(#managerId.managerId, 'Project', 'READ')")
     public ResponseEntity<List<ProjectDTO>> GetAllProjects(@RequestBody ManagerIdDTO managerId){
-       if(CheckPermissionForRole("READ_PROJECTS")) {
 
            ProjectManagerProfile manager = projectManagerService.GetManagerById(managerId.getManagerId());
 
            List<ProjectDTO> projects = projectManagerService.GetAllProject(managerId.getManagerId());
            return new ResponseEntity<>(projects, HttpStatus.OK);
-       }
-       else{
-           return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-       }
+
     }
 
     @GetMapping(value="/get-engineers/{projectId}")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+
+    @PreAuthorize("hasPermission(#projectId, 'Engineer', 'READ')")
     public ResponseEntity<List<EngineerDTO>> GetAllEngineersFromProject(@PathVariable  Long projectId){
-        if(CheckPermissionForRole("READ_ENGINEERS")) {
+
             List<EngineerDTO> engineers = projectManagerService.GetAllProjectEngineersOnProject(projectId);
             if (engineers == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
             return new ResponseEntity<>(engineers, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-        }
-
 
     }
     @GetMapping(value="/get-task/{taskId}")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+
+    @PreAuthorize("hasPermission(#taskId, 'TASK', 'READ')")
     public ResponseEntity<EngineerDTO> GetTaskAndEngineer(@PathVariable  Long taskId){
-        if(CheckPermissionForRole("READ_ENGINEER_TASK")) {
+
             EngineerDTO engineer = projectManagerService.GetEngineerTaskAndEngineer(taskId);
             if (engineer == null) {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
 
             return new ResponseEntity<>(engineer, HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-        }
-
 
     }
     @GetMapping(value="/get-manager/{managerId}")
@@ -90,9 +80,9 @@ public class ProjectManagerController {
     }
 
     @PostMapping(value="/update-project-manager")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+    @PreAuthorize("hasPermission(#projectManagerUpdateDTO.id, 'Project_Manager', 'UPDATE')")
     public ResponseEntity UpdateProjectManagerInformation(@RequestBody ProjectManagerUpdateDTO projectManagerUpdateDTO){
-        if(CheckPermissionForRole("UPDATE_PROJECT_MANAGER")) {
+
             try {
                 ValidationResult validationResult = userValidation.validEditProjectManagerDTO(projectManagerUpdateDTO);
                 if (validationResult.isValid()) {
@@ -110,13 +100,9 @@ public class ProjectManagerController {
         }
 
     }
-        else{
-            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-        }
-    }
 
     @GetMapping(value="/engineer-project")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+    @PreAuthorize("hasPermission(#projectId, 'Engineer', 'READ')")
     public ResponseEntity<List<EngineerDTO>> GetAllEngineers(){
 
             List<EngineerProfile> engineers = projectManagerService.FindAll();
@@ -131,9 +117,9 @@ public class ProjectManagerController {
 
     }
     @PostMapping(value="/add-engineer")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+    @PreAuthorize("hasPermission(#addEngineerToProjectDTO.projectId, 'Project_Task', 'CREATE')")
     public ResponseEntity AddEngineerToProject(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO){
-        if(CheckPermissionForRole("CREATE_PROJECT_TASK")) {
+
             try {
                 ValidationResult validationResult = userValidation.validAddEngineerToProject(addEngineerToProjectDTO);
                 if (validationResult.isValid()) {
@@ -146,18 +132,14 @@ public class ProjectManagerController {
                 return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
             }
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-        }
     }
 
 
     @PostMapping(value="/update-project-task")
-    @PreAuthorize("hasRole('PROJECT_MANAGER')")
+    @PreAuthorize("hasPermission(#updateProjectTaskDTO.taskId, 'Engineer_Task', 'UPDATE')")
     public ResponseEntity UpdateProjectTaskForEngineer(@RequestBody UpdateProjectTaskDTO updateProjectTaskDTO){
 
-        if(CheckPermissionForRole("UPDATE_ENGINEER_TASK")) {
+
             try {
                 ValidationResult validationResult = userValidation.validChangeEngineer(updateProjectTaskDTO);
                 if (validationResult.isValid()) {
@@ -170,10 +152,7 @@ public class ProjectManagerController {
             }catch(IllegalArgumentException e){
                     return new ResponseEntity(e.getMessage(),HttpStatus.BAD_REQUEST);
                 }
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.METHOD_NOT_ALLOWED);
-        }
+
     }
     public boolean CheckPermissionForRole(String privilege){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
