@@ -113,7 +113,6 @@ public class EngineerService
             System.out.println("NEMA TOG USERA");
             return null;
         }
-
         return projectTaskRepo.getAllProjectTasksByEngineerProfileId(user.getId());
     }
 

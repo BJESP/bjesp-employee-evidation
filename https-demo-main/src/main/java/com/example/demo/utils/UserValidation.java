@@ -1,9 +1,8 @@
 package com.example.demo.utils;
 
-import com.example.demo.dto.AddEngineerToProjectDTO;
-import com.example.demo.dto.ProjectManagerUpdateDTO;
-import com.example.demo.dto.UpdateProjectTaskDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.Address;
+import com.example.demo.model.EngineerAccountDetailsDTO;
 import com.example.demo.model.ValidationResult;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +16,55 @@ public class UserValidation extends  GeneralValidation{
 
     }
 
+    public ValidationResult validUpdateEngineerAccountDetailsDTO(EngineerAccountDetailsDTO engineerAccountDetailsDTO)
+    {
+        try {
+            validFirstName(engineerAccountDetailsDTO.getFirstName());
+            validLastName(engineerAccountDetailsDTO.getFirstName());
+            validUserEmail(engineerAccountDetailsDTO.getEmail());
+            validUserEmail(engineerAccountDetailsDTO.getUsername());
+            if(engineerAccountDetailsDTO.getPassword() != null)
+            {
+                if(!engineerAccountDetailsDTO.getPassword().equals(""))
+                {
+                    validPassword(engineerAccountDetailsDTO.getPassword());
+                }
+            }
+
+            validAddress(engineerAccountDetailsDTO.getAddress());
+            validPhoneNumber(engineerAccountDetailsDTO.getPhoneNumber());
+
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
+
+    public ValidationResult validUpdateProjectTaskRequestDTO(UpdateProjectTaskRequestDTO updateProjectTaskDTO)
+    {
+        try
+        {
+            validUserEmail(updateProjectTaskDTO.getUsername());
+            validDescription(updateProjectTaskDTO.getDescription());
+
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
+
+    public ValidationResult validPasswordlessLoginDTO(PasswordlessLoginDTO passwordlessLoginDTO)
+    {
+        try {
+            validUserEmail(passwordlessLoginDTO.getUsername());
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
 
     public ValidationResult validEditProjectManagerDTO(ProjectManagerUpdateDTO projectManagerUpdateDTO){
         try {
@@ -75,6 +123,15 @@ public class UserValidation extends  GeneralValidation{
 
     }
 
+    public boolean validRating(int rating)
+    {
+        if (rating > 5 || rating < 1)
+        {
+            throw new IllegalArgumentException("Your rating must be in range 1-5!");
+        }
+
+        return true;
+    }
 
     public boolean validUserEmail(String userEmail) {
         if (userEmail.isBlank()) {
@@ -191,9 +248,6 @@ public class UserValidation extends  GeneralValidation{
         } else if (HasLessOrGreaterThanCharacter(description)) {
             throw new IllegalArgumentException("Your description shouldn't contain special character < or >.");
             //return false;
-        } else if (HasSpace(description)) {
-            throw new IllegalArgumentException("Your description shouldn't contain spaces!");
-            //return false;
         } else if (IsTooShort(description, 2)) {
             throw new IllegalArgumentException("Your description should contain at least 2 characters!");
             //return false;
@@ -308,36 +362,21 @@ public class UserValidation extends  GeneralValidation{
         } else if (HasLessOrGreaterThanCharacter(street)) {
             throw new IllegalArgumentException("Your street shouldn't contain special character < or >.");
             //return false;
-        } else if (HasSpace(street)) {
-            throw new IllegalArgumentException("Your street shouldn't contain spaces!");
-            //return false;
         } else if (IsTooShort(street, 5)) {
             throw new IllegalArgumentException("Your street should contain at least 2 characters!");
             //return false;
         } else if (IsTooLong(street, 35)) {
             throw new IllegalArgumentException("Your street shouldn't contain more than 35 characters!");
             //return false;
-        } else if (!HasUppercaseLetterAtStartOnly(street)) {
-            throw new IllegalArgumentException("Your street needs to have one uppercase letter at the start!");
-            //return false;
         }
         return true;
     }
 
     private boolean validStreetNumber(String streetNumber) {
-        int number = Integer.parseInt(streetNumber);
         if (streetNumber.isBlank()) {
             throw new IllegalArgumentException("Your street number needs to be inserted!");
             //return false;
 
-        }
-        else if (number > 100){
-            throw new IllegalArgumentException("Street number should be less than 100 ");
-            //return false;
-        }
-        else if (number < 0){
-            throw new IllegalArgumentException("Street number should be positive number");
-            //return false;
         }
         return true;
     }
