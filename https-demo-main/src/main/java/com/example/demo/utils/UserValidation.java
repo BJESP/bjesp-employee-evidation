@@ -43,8 +43,10 @@ public class UserValidation extends  GeneralValidation{
 
     public ValidationResult validUpdateProjectTaskRequestDTO(UpdateProjectTaskRequestDTO updateProjectTaskDTO)
     {
-        try {
-            validTaskName(updateProjectTaskDTO.getTaskName());
+        try
+        {
+            validUserEmail(updateProjectTaskDTO.getUsername());
+            validDescription(updateProjectTaskDTO.getDescription());
 
             // Other validations...
             return new ValidationResult(true, "Validation successful");
@@ -130,6 +132,7 @@ public class UserValidation extends  GeneralValidation{
 
         return true;
     }
+
     public boolean validUserEmail(String userEmail) {
         if (userEmail.isBlank()) {
             throw new IllegalArgumentException("Your email needs to be inserted!");
@@ -244,9 +247,6 @@ public class UserValidation extends  GeneralValidation{
             //return false;
         } else if (HasLessOrGreaterThanCharacter(description)) {
             throw new IllegalArgumentException("Your description shouldn't contain special character < or >.");
-            //return false;
-        } else if (HasSpace(description)) {
-            throw new IllegalArgumentException("Your description shouldn't contain spaces!");
             //return false;
         } else if (IsTooShort(description, 2)) {
             throw new IllegalArgumentException("Your description should contain at least 2 characters!");
