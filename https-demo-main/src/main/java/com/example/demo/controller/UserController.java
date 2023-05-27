@@ -50,57 +50,36 @@ public class UserController {
     @Autowired
     private RolePrivilegeService rolePrivilegeService;
     @PostMapping(value="/change-permission")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Permission', 'CREATE')")
     public ResponseEntity ChangeRolePermissions(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
-        if(CheckPermissionForRole("CREATE_PERMISSION")) {
             rolePrivilegeService.AddRolePermission(rolePrivilegeDTO);
             return new ResponseEntity(HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
     }
 
     @GetMapping(value="/get-not-role-permissions/{roleId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Permission', 'READ')")
     public ResponseEntity GetNotRolePermissions(@PathVariable Long roleId){
-        if(CheckPermissionForRole("READ_PERMISSION")) {
             List<Privilege> privileges = rolePrivilegeService.GetNotRolePermissions(roleId);
             return new ResponseEntity<>(privileges,HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @GetMapping(value="/get-role-permissions/{roleId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Permission', 'READ')")
     public ResponseEntity GetRolePermissions(@PathVariable Long roleId){
-        if(CheckPermissionForRole("READ_PERMISSION")) {
             List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(roleId);
             return new ResponseEntity<>(privileges,HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
 
     @PostMapping(value="/delete-permission")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Permission', 'DELETE')")
     public ResponseEntity DeleteRolePermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
-        if(CheckPermissionForRole("DELETE_PERMISSION")) {
             rolePrivilegeService.DeleteRolePermission(rolePrivilegeDTO);
             return new ResponseEntity(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
 
     }
     @GetMapping(value="/get-permission/{roleId}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity GetPermissionForRole(@PathVariable Long roleId){
         Role role = rolePrivilegeService.GetRoleById(roleId);
         List<Privilege> newList  =(List) role.getPrivileges();
@@ -211,31 +190,21 @@ public class UserController {
                         "Refresh token is not in database!"));
     }
     @PostMapping("/approve/{email}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'User_status', 'UPDATE')")
     public ResponseEntity<HttpStatus> approveUser(@PathVariable String email) {
-        if(CheckPermissionForRole("UPDATE_USER_STATUS")) {
             if (email == null)
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             userService.approveRegistrationRequest(email);
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @PostMapping("/deny/{email}/{reason}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'User_status', 'UPDATE')")
     public ResponseEntity<HttpStatus> denyUser(@PathVariable String email,@PathVariable String reason) {
-        if(CheckPermissionForRole("UPDATE_USER_STATUS")) {
             if (email == null)
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             userService.denyRegistrationRequest(email, reason);
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @GetMapping(value="/confirm-mail", consumes = "*/*")
@@ -277,20 +246,14 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Employees', 'READ')")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees(HttpServletRequest request) {
-        if(CheckPermissionForRole("READ_EMPLOYEES")) {
             return new ResponseEntity<List<EmployeeDTO>>(userService.getAll(), HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
     @PostMapping(consumes="application/json", value="/register/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Admin_account', 'CREATE')")
     public ResponseEntity<HttpStatus> registerAdmin(@RequestBody RegistrationDTO data) {
-        if(CheckPermissionForRole("CREATE_ADMIN_ACCOUNT")) {
             if(userService.isBlocked(data.getEmail()))
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             if (!passwordValidator.isValid(data.getPassword()))
@@ -302,15 +265,10 @@ public class UserController {
             }
 
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @PostMapping(consumes="application/json", value="/edit/admin")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Admin_account', 'UPDATE')")
     public ResponseEntity<HttpStatus> editProfileAdmin(@RequestBody RegistrationDTO data) {
-        if(CheckPermissionForRole("UPDATE_ADMIN_ACCOUNT")) {
             if (data.getPassword()!=null) {
                 if (!passwordValidator.isValid(data.getPassword()))
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -322,23 +280,13 @@ public class UserController {
             }
 
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @GetMapping("/register/request")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Registration_requests', 'READ')")
     public ResponseEntity<List<RegistrationRequestDTO>> getRegistrationRequests(HttpServletRequest request) {
-        if(CheckPermissionForRole("READ_REGISTRATION_REQUESTS")) {
             return new ResponseEntity<List<RegistrationRequestDTO>>(userService.getRegistrationRequests(), HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
     @GetMapping(value="/loggedInAdmin")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RegistrationDTO> getLoggedInAdmin(HttpServletRequest request) {
         String email = tokenUtils.getEmailDirectlyFromHeader(request);
         if (email == null)
@@ -358,7 +306,6 @@ public class UserController {
         return new ResponseEntity<RegistrationDTO>(dto, HttpStatus.OK);
     }
     @GetMapping("/isInitial")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Boolean> getInitialAdmin(HttpServletRequest request) {
         String email = tokenUtils.getEmailDirectlyFromHeader(request);
         if (email == null)
@@ -369,9 +316,8 @@ public class UserController {
 
 
     @PostMapping("/edit/admin/pass/{pass}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasPermission(1, 'Initial_password', 'UPDATE')")
     public ResponseEntity<HttpStatus> changeInitialPassword(HttpServletRequest request, @PathVariable String pass) {
-        if(CheckPermissionForRole("UPDATE_INITIAL_PASSWORD")) {
             if (!passwordValidator.isValid(pass))
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             String email = tokenUtils.getEmailDirectlyFromHeader(request);
@@ -380,10 +326,6 @@ public class UserController {
             User user = userService.findByEmail(email);
             userService.changeInitialPassword(user, pass);
             return new ResponseEntity<>(HttpStatus.OK);
-        }
-        else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }
 
 

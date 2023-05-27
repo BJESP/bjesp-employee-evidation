@@ -89,7 +89,7 @@ public class UserService {
         user.setLastName(userRegDTO.getLastName());
         user.setPhoneNumber(userRegDTO.getPhoneNumber());
         if(userRegDTO.getPassword()!=null){
-            user.setPassword(new BCryptPasswordEncoder().encode(userRegDTO.getPassword()));
+            user.setPassword(userRegDTO.getPassword());
         }
         user.setTitle(userRegDTO.getTitle());
         user.getAddress().setCountry(userRegDTO.getCountry());
