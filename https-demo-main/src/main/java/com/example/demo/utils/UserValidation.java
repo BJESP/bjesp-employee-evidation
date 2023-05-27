@@ -254,10 +254,7 @@ public class UserValidation extends  GeneralValidation{
         } else if (IsTooLong(description, 20)) {
             throw new IllegalArgumentException("Your description shouldn't contain more than 20 characters!");
             //return false;
-        } else if (!HasUppercaseLetterAtStartOnly(description)) {
-            throw new IllegalArgumentException("Your description needs to have one uppercase letter at the start!");
-            //return false;
-        }
+        } 
         return true;
     }
 
