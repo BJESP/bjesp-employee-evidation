@@ -88,7 +88,7 @@ public class EngineerController {
     }
 
     //ALSO USE FOR CREATE
-    @PreAuthorize("hasPermission(#username,CVDocument, 'UPDATE')")
+    @PreAuthorize("hasPermission(#username,'CVDocument', 'UPDATE')")
     @PostMapping(value="/update-engineer-cv")
     public ResponseEntity UpdateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException
         {

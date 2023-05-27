@@ -144,10 +144,16 @@ public class UserController {
     }
 
     @PostMapping(consumes="application/json",value = "/passwordlesslogin")
-    public ResponseEntity<String> passwordlessLogin(@RequestBody PasswordlessLoginDTO passwordlessLoginDTO) {
+    public ResponseEntity passwordlessLogin(@RequestBody PasswordlessLoginDTO passwordlessLoginDTO) {
         System.out.println("PasswordlessLogin zapocet!");
-        passwordLessTokenService.CreateNewToken(passwordlessLoginDTO.getUsername());
-        return new ResponseEntity<>("HTTPS request successfully passed!", HttpStatus.OK);
+        try {
+            passwordLessTokenService.CreateNewToken(passwordlessLoginDTO.getUsername());
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        catch (IllegalArgumentException e) {
+            System.out.println("PUKSAO JE: " + e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping(value="/passwordless-login", consumes = "*/*")
