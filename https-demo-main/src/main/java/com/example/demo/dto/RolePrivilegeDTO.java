@@ -7,23 +7,23 @@ import java.util.List;
 public class RolePrivilegeDTO {
     private Long roleId;
     private String roleName;
-    private List<Privilege> privileges;
+    private Privilege privilege;
 
     public RolePrivilegeDTO() {
     }
 
-    public RolePrivilegeDTO(Long roleId, String roleName, List<Privilege> privileges) {
+    public RolePrivilegeDTO(Long roleId, String roleName, Privilege privileges) {
         this.roleId = roleId;
         this.roleName = roleName;
-        this.privileges = privileges;
+        this.privilege = privileges;
     }
 
-    public List<Privilege> getPrivileges() {
-        return privileges;
+    public Privilege getPrivilege() {
+        return privilege;
     }
 
-    public void setPrivileges(List<Privilege> privileges) {
-        this.privileges = privileges;
+    public void setPrivilege(Privilege privilege) {
+        this.privilege = privilege;
     }
 
     public Long getRoleId() {
