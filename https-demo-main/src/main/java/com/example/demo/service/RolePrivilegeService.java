@@ -30,40 +30,30 @@ public class RolePrivilegeService {
     public void DeleteRolePermission(RolePrivilegeDTO rolePrivilegeDTO){
         Role role = GetRoleById(rolePrivilegeDTO.getRoleId());
         List<Privilege> privilegesList = (List)role.getPrivileges();
-        List<Privilege> privilegeListDto = rolePrivilegeDTO.getPrivileges();
+        Privilege privilege = rolePrivilegeDTO.getPrivilege();
 
         for(int i = 0; i<privilegesList.size(); i++) {
-            for (Privilege privilegeDto : privilegeListDto) {
-                if(privilegesList.get(i).getId() == privilegeDto.getId())
+                if(privilegesList.get(i).getId() == privilege.getId())
                     privilegesList.remove(i);
             }
-        }
         roleRepository.save(role);
-
-
     }
 
-    public void AddRolePermission(RolePrivilegeDTO rolePrivilegeDTO){
+    public void AddRolePermission(RolePrivilegeDTO rolePrivilegeDTO) {
         Role role = GetRoleById(rolePrivilegeDTO.getRoleId());
-        List<Privilege> privilegesList = (List)role.getPrivileges();
-        List<Privilege> privilegeListDto = rolePrivilegeDTO.getPrivileges();
-        if(privilegesList.isEmpty()){
-            for (Privilege privilegeDto : privilegeListDto) {
-            privilegesList.add(privilegeDto);
-            }
-
-        }
-        else {
-            for (int i = 0; i <= privilegesList.size(); i++) {
-                for (Privilege privilegeDto : privilegeListDto) {
-                    if (privilegesList.get(i).getId() == privilegeDto.getId()) {
-                        i++;
-                    } else {
-                        privilegesList.add(i, privilegeDto);
-                    }
-                }
-            }
-        }
+        List<Privilege> privilegesList = (List) role.getPrivileges();
+        if (privilegesList.isEmpty()) {
+            privilegesList.add(rolePrivilegeDTO.getPrivilege());
+        } else {
+            privilegesList.add(privilegesList.size(), rolePrivilegeDTO.getPrivilege());
+//            for (int i = 0; i <= privilegesList.size(); i++) {
+//                    if (privilegesList.get(i).getId() == rolePrivilegeDTO.getPrivilege().getId()) {
+//                        i++;
+//                    } else {
+//                        privilegesList.add(i, rolePrivilegeDTO.getPrivilege());
+//                    }
+//                }
+           }
         roleRepository.save(role);
     }
 
