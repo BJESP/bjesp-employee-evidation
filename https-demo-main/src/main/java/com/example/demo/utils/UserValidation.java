@@ -220,19 +220,14 @@ public class UserValidation extends  GeneralValidation{
         } else if (HasLessOrGreaterThanCharacter(taskName)) {
             throw new IllegalArgumentException("Your task name shouldn't contain special character < or >.");
             //return false;
-        } else if (HasSpace(taskName)) {
-            throw new IllegalArgumentException("Your task name shouldn't contain spaces!");
-            //return false;
         } else if (IsTooShort(taskName, 2)) {
             throw new IllegalArgumentException("Your task name should contain at least 2 characters!");
             //return false;
         } else if (IsTooLong(taskName, 20)) {
             throw new IllegalArgumentException("Your task name shouldn't contain more than 20 characters!");
             //return false;
-        } else if (!HasUppercaseLetterAtStartOnly(taskName)) {
-            throw new IllegalArgumentException("Your task name needs to have one uppercase letter at the start!");
-            //return false;
         }
+
         return true;
     }
     private boolean validDescription(String description) {
@@ -327,9 +322,6 @@ public class UserValidation extends  GeneralValidation{
         } else if (HasLessOrGreaterThanCharacter(country)) {
             throw new IllegalArgumentException("Your country shouldn't contain special character < or >.");
             //return false;
-        } else if (HasSpace(country)) {
-            throw new IllegalArgumentException("Your country shouldn't contain spaces!");
-            //return false;
         } else if (IsTooShort(country, 2)) {
             throw new IllegalArgumentException("Your country should contain at least 2 characters!");
             //return false;
@@ -367,12 +359,16 @@ public class UserValidation extends  GeneralValidation{
     }
 
     private boolean validStreetNumber(String streetNumber) {
+        if(streetNumber == null) {
+            throw new IllegalArgumentException("Your street number needs to be inserted!");
+
+        }
+
         if (streetNumber.isBlank()) {
             throw new IllegalArgumentException("Your street number needs to be inserted!");
             //return false;
-
         }
-        return true;
+       return true;
     }
 
     private boolean validPhoneNumber(String phoneNumber) {

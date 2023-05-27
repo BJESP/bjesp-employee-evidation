@@ -32,7 +32,7 @@ public class PasswordLessTokenService {
         if (user == null)
         {
             System.out.println("No user found with username " + username);
-            throw new UsernameNotFoundException(String.format("No user found with username '%s'.", username));
+            throw new IllegalArgumentException("Bad email!");
         }
         else
         {
@@ -42,7 +42,7 @@ public class PasswordLessTokenService {
                 if (passwordlessToken.IsStillValid())
                 {
                     System.out.println("Token already exists");
-                    throw new UsernameNotFoundException(String.format("Token already sent"));
+                    throw new IllegalArgumentException("Token already exists!");
                 }
                 else
                 {
@@ -52,8 +52,8 @@ public class PasswordLessTokenService {
             }
 
             PasswordlessToken passwordlessToken = new PasswordlessToken(user.getUsername());
-            emailService.SendPasswordlessLoginEmail(username, String.valueOf(passwordlessToken.getUuid()));
             passwordlessTokenRepo.save(passwordlessToken);
+            emailService.SendPasswordlessLoginEmail(username, String.valueOf(passwordlessToken.getUuid()));
         }
     }
 
