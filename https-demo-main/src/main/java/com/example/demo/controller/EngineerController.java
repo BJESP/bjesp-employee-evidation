@@ -88,7 +88,7 @@ public class EngineerController {
     }
 
     //ALSO USE FOR CREATE
-    @PreAuthorize("hasPermission(CVDocument, 'UPDATE')")
+    @PreAuthorize("hasPermission(#username,CVDocument, 'UPDATE')")
     @PostMapping(value="/update-engineer-cv")
     public ResponseEntity UpdateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException
         {
@@ -109,7 +109,7 @@ public class EngineerController {
 
 
     @PostMapping(value="/create-engineer-cv")
-    @PreAuthorize("hasPermission(CVDocument, 'CREATE')")
+    @PreAuthorize("hasPermission(#username,'CVDocument', 'CREATE')")
     public ResponseEntity CreateEngineerCV(@RequestParam("file") MultipartFile file, @RequestParam("username") String username) throws IOException {
 
                 try
@@ -131,7 +131,7 @@ public class EngineerController {
     }
 
     @PostMapping(value="/get-engineer-skills")
-    @PreAuthorize("hasPermission(Skill, 'READ')")
+    @PreAuthorize("hasPermission(#enginnerEmailDTO,'Skill', 'READ')")
     public ResponseEntity GetSkillsForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
 
@@ -152,7 +152,7 @@ public class EngineerController {
 
 
     @PostMapping(value="/get-project-tasks")
-    @PreAuthorize("hasPermission(ProjectTask, 'READ')")
+    @PreAuthorize("hasPermission(#enginnerEmailDTO,'ProjectTask', 'READ')")
     public ResponseEntity GetProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO) {
         try {
             userValidation.validPasswordlessLoginDTO(enginnerEmailDTO);
@@ -166,7 +166,7 @@ public class EngineerController {
 
 
     @PostMapping(value="/get-project-and-project-tasks")
-    @PreAuthorize("hasPermission(ProjectTask, 'READ')")
+    @PreAuthorize("hasPermission(#enginnerEmailDTO,'ProjectTask', 'READ')")
     public ResponseEntity GetProjectWithProjectTasksForEngineer(@RequestBody PasswordlessLoginDTO enginnerEmailDTO)
     {
 
@@ -184,7 +184,7 @@ public class EngineerController {
     }
 
     @PostMapping(value="/update-project-task")
-    @PreAuthorize("hasPermission(ProjectTask, 'UPDATE')")
+    @PreAuthorize("hasPermission(#requestDTO,'ProjectTask', 'UPDATE')")
     public ResponseEntity UpdateProjectTaskForEngineer(@RequestBody UpdateProjectTaskRequestDTO requestDTO){
 
             try {
@@ -213,7 +213,7 @@ public class EngineerController {
 
 
     @PostMapping(value="/account-details")
-    @PreAuthorize("hasPermission(EngineerProfile, 'READ')")
+    @PreAuthorize("hasPermission(#enginnerEmailDTO,'EngineerProfile', 'READ')")
     public ResponseEntity getAccountDetails(@RequestBody PasswordlessLoginDTO enginnerEmailDTO) {
 
             try
@@ -233,7 +233,7 @@ public class EngineerController {
 
     }
 
-    @PreAuthorize("hasPermission(EngineerProfile, 'UPDATE')")
+    @PreAuthorize("hasPermission(#engineerAccountDetailsDTO,'EngineerProfile', 'UPDATE')")
     @PostMapping(value="/account-details-update")
     public ResponseEntity updateAccountDetails(@RequestBody EngineerAccountDetailsDTO engineerAccountDetailsDTO) {
 

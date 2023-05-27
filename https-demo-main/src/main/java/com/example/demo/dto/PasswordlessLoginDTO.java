@@ -1,6 +1,8 @@
 package com.example.demo.dto;
 
-public class PasswordlessLoginDTO {
+import java.io.Serializable;
+
+public class PasswordlessLoginDTO implements Serializable {
     private String username;
     public String getUsername() {
         return username;

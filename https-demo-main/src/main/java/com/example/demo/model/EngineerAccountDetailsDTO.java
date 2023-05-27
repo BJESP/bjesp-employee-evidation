@@ -3,11 +3,12 @@ package com.example.demo.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
-public class EngineerAccountDetailsDTO {
+public class EngineerAccountDetailsDTO implements Serializable {
     private String password;
 
     private String firstName;

@@ -1,9 +1,10 @@
 package com.example.demo.dto;
 
 import javax.persistence.Column;
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class UpdateProjectTaskRequestDTO {
+public class UpdateProjectTaskRequestDTO implements Serializable {
     public String getUsername() {
         return username;
     }
