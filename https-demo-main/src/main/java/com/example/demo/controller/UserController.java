@@ -7,6 +7,7 @@ import com.example.demo.repo.PasswordlessTokenRepo;
 import com.example.demo.security.TokenUtils;
 import com.example.demo.service.*;
 import com.example.demo.utils.PasswordValidator;
+import com.example.demo.utils.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,6 +50,9 @@ public class UserController {
     private RefreshTokenService refreshTokenService;
     @Autowired
     private RolePrivilegeService rolePrivilegeService;
+    @Autowired
+    private UserValidation userValidation;
+
     @PostMapping(value="/change-permission")
     @PreAuthorize("hasPermission(1, 'Permission', 'CREATE')")
     public ResponseEntity ChangeRolePermissions(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
@@ -88,18 +92,30 @@ public class UserController {
     }
 
     @PostMapping(consumes="application/json", value="/register")
-    public ResponseEntity<HttpStatus> registerUser(@RequestBody RegistrationDTO data) {
+    public ResponseEntity registerUser(@RequestBody RegistrationDTO data) {
         if(userService.isBlocked(data.getEmail()))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         if (!passwordValidator.isValid(data.getPassword()))
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        try {
+//            userService.registerUser(data);
+//        } catch (Exception ignored) {
+//            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+//        }
+//
+//        return new ResponseEntity<>(HttpStatus.OK);
         try {
-            userService.registerUser(data);
-        } catch (Exception ignored) {
-            return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-        }
+            ValidationResult validationResult = userValidation.validRegistrationDTO(data);
+            if (validationResult.isValid()) {
+                userService.registerUser(data);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+            }
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
     @PostMapping(value = "/login")
     public ResponseEntity login( @RequestBody LoginDTO loginData) {
@@ -253,33 +269,57 @@ public class UserController {
 
     @PostMapping(consumes="application/json", value="/register/admin")
     @PreAuthorize("hasPermission(1, 'Admin_account', 'CREATE')")
-    public ResponseEntity<HttpStatus> registerAdmin(@RequestBody RegistrationDTO data) {
+    public ResponseEntity registerAdmin(@RequestBody RegistrationDTO data) {
             if(userService.isBlocked(data.getEmail()))
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             if (!passwordValidator.isValid(data.getPassword()))
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//            try {
+//                userService.registerAdmin(data);
+//            } catch (Exception ignored) {
+//                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+//            }
+//
+//            return new ResponseEntity<>(HttpStatus.OK);
             try {
-                userService.registerAdmin(data);
-            } catch (Exception ignored) {
-                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-            }
+                ValidationResult validationResult = userValidation.validRegistrationDTO(data);
+                if (validationResult.isValid()) {
+                    userService.registerAdmin(data);
+                    return new ResponseEntity<>(HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+                }
+            }catch (IllegalArgumentException e) {
+                return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
     @PostMapping(consumes="application/json", value="/edit/admin")
     @PreAuthorize("hasPermission(1, 'Admin_account', 'UPDATE')")
-    public ResponseEntity<HttpStatus> editProfileAdmin(@RequestBody RegistrationDTO data) {
+    public ResponseEntity editProfileAdmin(@RequestBody RegistrationDTO data) {
             if (data.getPassword()!=null) {
                 if (!passwordValidator.isValid(data.getPassword()))
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
             }
-            try {
+//            try {
+//                userService.editAdmin(data);
+//            } catch (Exception ignored) {
+//                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+//            }
+//
+//            return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            ValidationResult validationResult = userValidation.validRegistrationDTO(data);
+            if (validationResult.isValid()) {
                 userService.editAdmin(data);
-            } catch (Exception ignored) {
-                return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
             }
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
-            return new ResponseEntity<>(HttpStatus.OK);
+        }
     }
     @GetMapping("/register/request")
     @PreAuthorize("hasPermission(1, 'Registration_requests', 'READ')")
