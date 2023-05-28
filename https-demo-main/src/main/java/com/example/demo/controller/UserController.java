@@ -69,7 +69,7 @@ public class UserController {
     }
 
 
-   
+
     @PostMapping(value="/get-role-permissions")
     public ResponseEntity<List<Privilege>> GetRolePermissions(@RequestBody RolesDTO rolesDTO){
 
