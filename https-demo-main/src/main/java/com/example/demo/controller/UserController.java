@@ -194,13 +194,16 @@ public class UserController {
 
 
     @GetMapping(value="/register/{email}")
-    public ResponseEntity<User> emailExists(@PathVariable String email) {
+    public ResponseEntity<UserDTO> emailExists(@PathVariable String email) {
+        System.out.println(email);
         if (email == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         User user = userService.findByEmail(email);
+        UserDTO dto = new UserDTO();
+        dto.setEmail(user.getEmail());
         if (user==null)
             return null;
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> RefreshTokenFunction( @RequestBody RefreshTokenRequest request) {
