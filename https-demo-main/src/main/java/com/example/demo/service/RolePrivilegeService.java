@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.RolePrivilegeDTO;
+import com.example.demo.dto.RolesDTO;
 import com.example.demo.model.Privilege;
 import com.example.demo.model.Role;
 import com.example.demo.repo.PrivilegeRepo;
@@ -72,10 +73,31 @@ public class RolePrivilegeService {
 
 
     }
-    public List<Privilege> GetRolePermissions(Long roleId){
-        Role role = roleRepository.findById(roleId).orElseGet(null);
+    public List<Privilege> GetRolePermissions(RolesDTO rolesDTO){
+        System.out.println(rolesDTO);
+        List<String> roles = rolesDTO.getRoles();
+        List<Privilege> rolePrivilege = new ArrayList<>();
+        for(String role:roles){
+            System.out.println(role);
+            Role r = roleRepository.findByName(role);
+            rolePrivilege.addAll((List<Privilege>) r.getPrivileges());
+
+        }
+        System.out.println(rolePrivilege);
+
+
+        return rolePrivilege;
+
+    }
+
+    public boolean CheckPermission(RolePrivilegeDTO rolePrivilegeDTO){
+        Role role = roleRepository.findById(rolePrivilegeDTO.getRoleId()).orElseGet(null);
         List<Privilege> rolePrivileges = (List)role.getPrivileges();
-        return rolePrivileges;
+        for(Privilege privilege:rolePrivileges){
+            if(privilege.getName().contains(rolePrivilegeDTO.getPrivilegeName()))
+                return true;
+        }
+        return false;
 
     }
 }
