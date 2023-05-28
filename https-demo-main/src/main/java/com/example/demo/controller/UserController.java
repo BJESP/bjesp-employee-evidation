@@ -68,11 +68,22 @@ public class UserController {
             return new ResponseEntity<>(privileges,HttpStatus.OK);
     }
 
-    @GetMapping(value="/get-role-permissions/{roleId}")
-    @PreAuthorize("hasPermission(1, 'Permission', 'READ')")
-    public ResponseEntity GetRolePermissions(@PathVariable Long roleId){
-            List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(roleId);
-            return new ResponseEntity<>(privileges,HttpStatus.OK);
+
+
+    @PostMapping(value="/get-role-permissions")
+    public ResponseEntity<List<Privilege>> GetRolePermissions(@RequestBody RolesDTO rolesDTO){
+
+            List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(rolesDTO);
+
+            return new ResponseEntity<List<Privilege>>(privileges,HttpStatus.OK);
+    }
+
+    @PostMapping(value="/check-permission")
+   // @PreAuthorize("hasPermission()")
+    public ResponseEntity CheckPermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
+        boolean hasPermission = rolePrivilegeService.CheckPermission(rolePrivilegeDTO);
+        return new ResponseEntity(hasPermission,HttpStatus.OK);
+
     }
 
 
