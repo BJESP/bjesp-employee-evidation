@@ -2,9 +2,12 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.*;
 import com.example.demo.model.EngineerProfile;
+import com.example.demo.model.ProjectManagerProfile;
 import com.example.demo.model.User;
+import com.example.demo.model.ValidationResult;
 import com.example.demo.service.ProjectService;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.UserValidation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +29,8 @@ public class ProjectController {
     private ProjectService projectService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserValidation userValidation;
 
     @GetMapping()
     @PreAuthorize("hasPermission(1, 'Project', 'READ')")
@@ -34,9 +39,19 @@ public class ProjectController {
     }
     @PostMapping()
     @PreAuthorize("hasPermission(1, 'Project', 'CREATE')")
-    public ResponseEntity<HttpStatus> createProject(@RequestBody ProjectDTO data) {
-            projectService.createProject(data);
-            return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity createProject(@RequestBody ProjectDTO data) {
+        try {
+            ValidationResult validationResult = userValidation.validProjectDTO(data);
+            if (validationResult.isValid()) {
+                projectService.createProject(data);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+            }
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+
+        }
     }
     @GetMapping(value="/engineers/{projectId}")
     @PreAuthorize("hasPermission(1, 'Task', 'READ')")
@@ -53,8 +68,18 @@ public class ProjectController {
     @PostMapping(value="/addTask")
     @PreAuthorize("hasPermission(1, 'Project_task', 'CREATE')")
     public ResponseEntity AddEngineerToTask(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO){
-            projectService.AddEngineerToProject(addEngineerToProjectDTO);
-            return new ResponseEntity<>(HttpStatus.OK);
+        try {
+            ValidationResult validationResult = userValidation.validAddEngineerToProjectDTO(addEngineerToProjectDTO);
+            if (validationResult.isValid()) {
+                projectService.AddEngineerToProject(addEngineerToProjectDTO);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
+            }
+        }catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+
+        }
     }
 
     public boolean CheckPermissionForRole(String privilege){

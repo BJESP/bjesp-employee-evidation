@@ -41,6 +41,21 @@ public class UserValidation extends  GeneralValidation{
         }
     }
 
+    public ValidationResult validRegistrationDTO(RegistrationDTO registrationDTO)
+    {
+        try {
+            validUserEmail(registrationDTO.getEmail());
+            validFirstName(registrationDTO.getFirstName());
+            validLastName(registrationDTO.getLastName());
+            validUserEmail(registrationDTO.getEmail());
+            validAddress(new Address(registrationDTO.getCountry(), registrationDTO.getCity(), registrationDTO.getStreet(), registrationDTO.getStreetNumber()));
+            validPhoneNumber(registrationDTO.getPhoneNumber());
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+    }
     public ValidationResult validUpdateProjectTaskRequestDTO(UpdateProjectTaskRequestDTO updateProjectTaskDTO)
     {
         try
@@ -84,6 +99,18 @@ public class UserValidation extends  GeneralValidation{
                     ThrowIfInPast(addEngineerToProjectDTO.getStartDate()) ;
                     validTaskName(addEngineerToProjectDTO.getTaskName()) ;
                     validDescription(addEngineerToProjectDTO.getDescription());
+            validTaskName(addEngineerToProjectDTO.getTaskName());
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+
+    }
+    public ValidationResult validAddEngineerToProjectDTO(AddEngineerToProjectDTO addEngineerToProjectDTO){
+        try {
+            validTaskName(addEngineerToProjectDTO.getTaskName()) ;
+            validDescription(addEngineerToProjectDTO.getDescription());
             validTaskName(addEngineerToProjectDTO.getTaskName());
             // Other validations...
             return new ValidationResult(true, "Validation successful");
@@ -401,6 +428,48 @@ public class UserValidation extends  GeneralValidation{
         if (start.compareTo(LocalDate.now().plusDays(1)) < 0)
         {
             return false;
+        }
+        return true;
+    }
+    public ValidationResult validProjectDTO(ProjectDTO projectDTO){
+        try {
+            validProjectName(projectDTO.getName());
+            validDescription(projectDTO.getDescription());
+            validDuration(projectDTO.getDuration());
+            // Other validations...
+            return new ValidationResult(true, "Validation successful");
+        } catch (IllegalArgumentException e) {
+            throw e;
+        }
+
+    }
+    private boolean validProjectName(String taskName) {
+        if (taskName.isBlank()) {
+            throw new IllegalArgumentException("Your project name needs to be inserted!");
+            // return false;
+        } else if (HasSpecialCharacter(taskName)) {
+            throw new IllegalArgumentException("Your project name shouldn't contain special characters.");
+            //return false;
+        } else if (HasLessOrGreaterThanCharacter(taskName)) {
+            throw new IllegalArgumentException("Your project name shouldn't contain special character < or >.");
+            //return false;
+        } else if (IsTooShort(taskName, 2)) {
+            throw new IllegalArgumentException("Your project name should contain at least 2 characters!");
+            //return false;
+        } else if (IsTooLong(taskName, 20)) {
+            throw new IllegalArgumentException("Your project name shouldn't contain more than 20 characters!");
+            //return false;
+        }
+
+        return true;
+    }
+    private boolean validDuration(Integer streetNumber) {
+        if(streetNumber == null) {
+            throw new IllegalArgumentException("Your project duration needs to be inserted!");
+        }
+        if (streetNumber == 0) {
+            throw new IllegalArgumentException("Your project duration needs to be inserted!");
+            //return false;
         }
         return true;
     }
