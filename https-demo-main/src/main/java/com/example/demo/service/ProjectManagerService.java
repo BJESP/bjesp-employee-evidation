@@ -63,7 +63,7 @@ public class ProjectManagerService {
         Address address = new Address(projectManagerUpdateDTO.getAddress().getCountry(),projectManagerUpdateDTO.getAddress().getCity(),
                 projectManagerUpdateDTO.getAddress().getStreet(),projectManagerUpdateDTO.getAddress().getStreetNumber());
         addressRepo.save(address);
-        projectManager.setAddress(projectManagerUpdateDTO.getAddress());
+        projectManager.setAddress(address);
         projectManager = projectManagerRepo.save(projectManager);
         return projectManager;
 
