@@ -240,7 +240,7 @@ public class UserService {
         return (user.isInitialAdmin() && !user.isChangedPassword());
     }
     public void changeInitialPassword(User user, String pass){
-        user.setPassword(new BCryptPasswordEncoder().encode(pass));
+        user.setPassword(pass);
         user.setChangedPassword(true);
         userRepository.save(user);
     }
