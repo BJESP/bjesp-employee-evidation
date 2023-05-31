@@ -28,7 +28,7 @@ public class PasswordLessTokenService {
     private EmailService emailService;
 
     public void CreateNewToken(String username) {
-        User user = userRepo.findByUsername(username);
+        User user = userRepo.findByEmail(username);
         if (user == null)
         {
             System.out.println("No user found with username " + username);
