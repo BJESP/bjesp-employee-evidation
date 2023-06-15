@@ -224,17 +224,40 @@ public class EngineerService
         return engineerAccountDetailsDTO;
     }
 
+    public static boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     public byte[] loadEngineerCv(String username) {
     try {
-        System.out.println("EMAIL: " + username);
-        if (!userRepo.existsById(Long.valueOf(username))) {
-            System.out.println("NEMA TOG USERA");
-            return null;
-        }
+        CVDocument cvDocument = null;
+        if(isNumeric(username)) {
+            if (!userRepo.existsById(Long.valueOf(username))) {
+                System.out.println("NEMA TOG USERA");
+                return null;
+            }
 
-        CVDocument cvDocument = cvDocumentRepo.findByEngineerProfile( userRepo.findById(Long.valueOf(username)));
-        if (cvDocument == null) {
-            return null; // CV not found for the engineer
+            cvDocument = cvDocumentRepo.findByEngineerProfile(userRepo.findById(Long.valueOf(username)));
+            if (cvDocument == null) {
+                return null; // CV not found for the engineer
+            }
+        }
+        else
+        {
+            if (!userRepo.existsByEmail((username))) {
+                System.out.println("NEMA TOG USERA");
+                return null;
+            }
+
+            cvDocument = cvDocumentRepo.findByEngineerProfile(Optional.ofNullable(userRepo.findByEmail(username)));
+            if (cvDocument == null) {
+                return null; // CV not found for the engineer
+            }
         }
 
         byte[] encryptedCv = readFile(cvDocument.getInternalName());
