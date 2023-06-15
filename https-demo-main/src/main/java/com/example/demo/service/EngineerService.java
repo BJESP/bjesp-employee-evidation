@@ -14,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -65,7 +66,7 @@ public class EngineerService
             return false;
         }
 
-        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
+        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile(Optional.ofNullable((EngineerProfile) userRepo.findByEmail(username)));
 
 
         if (newCvDocument == null)
@@ -226,12 +227,12 @@ public class EngineerService
     public byte[] loadEngineerCv(String username) {
     try {
         System.out.println("EMAIL: " + username);
-        if (!userRepo.existsByEmail(username)) {
+        if (!userRepo.existsById(Long.valueOf(username))) {
             System.out.println("NEMA TOG USERA");
             return null;
         }
 
-        CVDocument cvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
+        CVDocument cvDocument = cvDocumentRepo.findByEngineerProfile( userRepo.findById(Long.valueOf(username)));
         if (cvDocument == null) {
             return null; // CV not found for the engineer
         }

@@ -108,7 +108,7 @@ public class EngineerController {
     @PostMapping(value="/load-engineer-cv")
     public ResponseEntity<byte[]> loadEngineerCv(@RequestBody PasswordlessLoginDTO enginnerEmailDTO) throws IOException {
         try {
-            userValidation.validUserEmail(enginnerEmailDTO.getUsername());
+           // userValidation.validUserEmail(enginnerEmailDTO.getUsername());
 
             byte[] encryptedCv = engineerService.loadEngineerCv(enginnerEmailDTO.getUsername());
             if (encryptedCv == null) {
