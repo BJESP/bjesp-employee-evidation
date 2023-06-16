@@ -200,9 +200,9 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         User user = userService.findByEmail(email);
         UserDTO dto = new UserDTO();
-        dto.setEmail(user.getEmail());
         if (user==null)
             return null;
+        dto.setEmail(user.getEmail());
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
     @PostMapping("/refreshtoken")
