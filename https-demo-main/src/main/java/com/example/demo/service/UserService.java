@@ -1,9 +1,6 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.EmployeeDTO;
-import com.example.demo.dto.EngineerDTO;
-import com.example.demo.dto.RegistrationDTO;
-import com.example.demo.dto.RegistrationRequestDTO;
+import com.example.demo.dto.*;
 import com.example.demo.model.*;
 import com.example.demo.repo.BlockedUserRepo;
 import com.example.demo.repo.EngineerRepo;
@@ -243,5 +240,43 @@ public class UserService {
         user.setPassword(pass);
         user.setChangedPassword(true);
         userRepository.save(user);
+    }
+    public List<EngineerSearchDTO> searchEngineers(EngineerSearchDTO data) {
+        List<EngineerProfile> eng = engineerRepo.findAllByIsActive(true);
+        List<EngineerSearchDTO> dtos = new ArrayList<>();
+        for(EngineerProfile e : eng) {
+            boolean match = true;
+            if (isNotBlank(data.getName()) && !e.getFirstName().toLowerCase().contains(data.getName().toLowerCase())) {
+                match = false;
+            }
+            if (isNotBlank(data.getSurname()) && !e.getLastName().toLowerCase().contains(data.getSurname().toLowerCase())) {
+                match = false;
+            }
+            if (isNotBlank(data.getEmail()) && !e.getEmail().contains(data.getEmail())) {
+                match = false;
+            }
+            if(data.getEmployedFrom()!=null && e.getDateOfEmployment().isBefore(data.getEmployedFrom().plusDays(1))) {
+                match = false;
+            }
+            if(data.getEmployedTo()!=null && e.getDateOfEmployment().isAfter(data.getEmployedTo().plusDays(1))){
+                match = false;
+            }
+            if (match) {
+                dtos.add(new EngineerSearchDTO(e.getFirstName(), e.getLastName(), e.getEmail(), e.getDateOfEmployment(), null));
+            }
+        }
+        return dtos;
+    }
+    public List<EngineerSearchDTO> getEngineersForSearch(){
+        List<EngineerProfile> eng = engineerRepo.findAllByIsActive(true);
+        List<EngineerSearchDTO> dtos = new ArrayList<>();
+        for(EngineerProfile e:eng){
+            EngineerSearchDTO dto = new EngineerSearchDTO(e.getFirstName(), e.getLastName(), e.getEmail(), e.getDateOfEmployment(), null);
+            dtos.add(dto);
+        }
+        return dtos;
+    }
+    private boolean isNotBlank(String str) {
+        return str != null && !str.trim().isEmpty();
     }
 }
