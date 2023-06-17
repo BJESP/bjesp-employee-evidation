@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import com.example.demo.model.PasswordResetToken;
 import com.example.demo.model.RegistrationToken;
 import com.example.demo.model.User;
+import com.example.demo.repo.PasswordResetTokenRepo;
 import com.example.demo.repo.RegistrationTokenRepo;
 import com.example.demo.utils.HMAC;
 import jakarta.mail.*;
@@ -28,6 +30,10 @@ public class EmailService {
     private RegistrationTokenRepo registrationTokenRepository;
     @Autowired
     private HMAC HMACService;
+    @Autowired
+    private PasswordResetTokenService passwordResetTokenService;
+    @Autowired
+    private PasswordResetTokenRepo passwordResetTokenRepository;
 
     public void SendPasswordlessLoginEmail(String email, String tokenUUID)
     {
@@ -68,6 +74,23 @@ public class EmailService {
         message.setTo(toEmail);
         message.setText("Rejection reason: " + reason);
         message.setSubject("Registration denied");
+
+        mailSender.send(message);
+
+        System.out.println("mail sent successfully");
+    }
+    @Async
+    public void sendResetEmail(User user){
+        PasswordResetToken secureToken= passwordResetTokenService.createSecureToken();
+        secureToken.setUser(user);
+        passwordResetTokenRepository.save(secureToken);
+        SimpleMailMessage message=new SimpleMailMessage();
+        message.setFrom("isa.hospitall@gmail.com");
+        message.setTo(user.getEmail());
+        String verificationLink = "https://localhost:4200/new-password/confirm-mail?token=" + secureToken.getToken();
+        String body = "Click here to reset your password:" + verificationLink ;
+        message.setText(body);
+        message.setSubject("Reset password");
 
         mailSender.send(message);
 
