@@ -1,22 +1,28 @@
 package com.example.demo.model;
 
+import com.example.demo.security.StringAttributeConverter;
+
 import javax.persistence.*;
 
 @Entity
 public class Address {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "country", nullable = false)
+    @Convert(converter = StringAttributeConverter.class)
     private String country;
 
     @Column(name = "city", nullable = false)
+    @Convert(converter = StringAttributeConverter.class)
     private String city;
 
     @Column(name = "street", nullable = false)
+    @Convert(converter = StringAttributeConverter.class)
     private String street;
     @Column(name = "streetNumber", nullable = false)
+    @Convert(converter = StringAttributeConverter.class)
     private String streetNumber;
 
 
