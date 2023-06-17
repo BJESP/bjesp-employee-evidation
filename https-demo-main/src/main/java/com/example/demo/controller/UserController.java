@@ -544,6 +544,18 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/block/{email}")
+    @PreAuthorize("hasPermission(1, 'User_status', 'UPDATE')")
+    public ResponseEntity<HttpStatus> blockUser(@PathVariable String email) {
+        if (email == null) {
+            logger.error("email not found");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.blockUser(email);
+        logger.info("User blocked");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 
 

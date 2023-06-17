@@ -75,8 +75,16 @@ public class User implements UserDetails {
     private boolean changedPassword;
     @Column
     private boolean initialAdmin;
+    @Column
+    private boolean blocked;
 
+    public boolean isBlocked() {
+        return blocked;
+    }
 
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -117,7 +125,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActive();
+        return (isActive() && !isBlocked());
     }
 
 

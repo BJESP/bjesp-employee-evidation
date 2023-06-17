@@ -7,10 +7,8 @@ import com.example.demo.repo.EngineerRepo;
 import com.example.demo.repo.RoleRepo;
 import com.example.demo.repo.UserRepo;
 import com.example.demo.utils.HMAC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -29,8 +27,9 @@ public class UserService {
     private final ProjectService projectService;
     private final EngineerRepo engineerRepo;
     private final PasswordResetTokenService passwordResetTokenService;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService, EngineerRepo engineerRepo, PasswordResetTokenService passwordResetTokenService) {
+    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService, EngineerRepo engineerRepo, PasswordResetTokenService passwordResetTokenService, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
 
         this.roleRepository = roleRepository;
@@ -41,6 +40,7 @@ public class UserService {
         this.projectService = projectService;
         this.engineerRepo = engineerRepo;
         this.passwordResetTokenService = passwordResetTokenService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public User findByUserEmail(String userEmail) {
@@ -304,5 +304,12 @@ public class UserService {
         //brise se da bi moglo samo jednom da se iskoristi
         passwordResetTokenService.removeToken(secureToken);
         return true;
+    }
+    public void blockUser(String email) {
+        User user = userRepository.findByEmail(email);
+        user.setBlocked(true);
+        user.setActive(false);
+        refreshTokenService.deleteByUserId(user.getId());
+        userRepository.save(user);
     }
 }
