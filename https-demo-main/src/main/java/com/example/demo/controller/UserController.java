@@ -381,6 +381,16 @@ public class UserController {
             userService.changeInitialPassword(user, pass);
             return new ResponseEntity<>(HttpStatus.OK);
     }
+    @PostMapping("/search")
+    @PreAuthorize("hasPermission(1, 'Employees', 'READ')")
+    public ResponseEntity<List<EngineerSearchDTO>> searchEngineers(@RequestBody EngineerSearchDTO data) {
+        return new ResponseEntity<>(userService.searchEngineers(data), HttpStatus.OK);
+    }
+    @GetMapping("/engineers/search")
+    @PreAuthorize("hasPermission(1, 'Employees', 'READ')")
+    public ResponseEntity<List<EngineerSearchDTO>> getEngineersForSearch(HttpServletRequest request) {
+        return new ResponseEntity<>(userService.getEngineersForSearch(), HttpStatus.OK);
+    }
 
 
     public boolean CheckPermissionForRole(String privilege){
