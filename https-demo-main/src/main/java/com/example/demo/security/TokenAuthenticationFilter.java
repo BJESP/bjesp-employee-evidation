@@ -26,16 +26,16 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        System.out.println("vvvvvvvvvvvvvvvvvvvvvvvvvvvvv");
+
         String userEmail;
         String authToken = tokenUtils.getToken(request);
-        System.out.println(authToken+"izgenerisan");
+
         if (authToken != null) {
             // Get username from the token
             userEmail = tokenUtils.getUsernameFromToken(authToken);
-            System.out.println(userEmail+"ahhahahahhahahahhha");
+
             if (userEmail != null) {
-                System.out.println("dosaooooooooo");
+
                 // Get user with the username
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
 

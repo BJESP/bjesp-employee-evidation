@@ -27,7 +27,7 @@ public class RefreshTokenService {
     public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
-
+    @Transactional
     public RefreshToken createRefreshToken(Long userId) {
         RefreshToken refreshToken = new RefreshToken();
 
@@ -50,7 +50,12 @@ public class RefreshTokenService {
     }
 
     public RefreshToken verifyExpiration(RefreshToken token) {
+        System.out.println("majkko moja sto ne radi ovo");
         if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
+            Long id = token.getUser().getId();
+            //int i = deleteByUserId(id);
+            //System.out.println(i+"evoooooooooooooooooo");
+
             refreshTokenRepository.delete(token);
             throw new RefreshTokenException(token.getToken(), "Refresh token was expired. Please make a new signin request");
         }

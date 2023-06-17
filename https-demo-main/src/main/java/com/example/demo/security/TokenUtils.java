@@ -24,7 +24,7 @@ public class TokenUtils {
     public String SECRET;
 
     // 18000000 = 5h
-    @Value("900000")
+    @Value("100100")
     private int EXPIRES_IN;
 
 

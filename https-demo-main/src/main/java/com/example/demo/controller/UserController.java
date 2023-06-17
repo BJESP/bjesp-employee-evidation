@@ -8,6 +8,10 @@ import com.example.demo.security.TokenUtils;
 import com.example.demo.service.*;
 import com.example.demo.utils.PasswordValidator;
 import com.example.demo.utils.UserValidation;
+import org.apache.logging.log4j.LogManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -53,10 +58,14 @@ public class UserController {
     @Autowired
     private UserValidation userValidation;
 
+    private static  Logger logger =  LoggerFactory.getLogger(UserController.class);
+
     @PostMapping(value="/change-permission")
     @PreAuthorize("hasPermission(1, 'Permission', 'CREATE')")
     public ResponseEntity ChangeRolePermissions(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
+            logger.info("Changed role permission");
             rolePrivilegeService.AddRolePermission(rolePrivilegeDTO);
+
             return new ResponseEntity(HttpStatus.OK);
 
     }
@@ -64,14 +73,21 @@ public class UserController {
     @GetMapping(value="/get-not-role-permissions/{roleId}")
     @PreAuthorize("hasPermission(1, 'Permission', 'READ')")
     public ResponseEntity GetNotRolePermissions(@PathVariable Long roleId){
+        try {
             List<Privilege> privileges = rolePrivilegeService.GetNotRolePermissions(roleId);
-            return new ResponseEntity<>(privileges,HttpStatus.OK);
+
+            return new ResponseEntity<>(privileges, HttpStatus.OK);
+        }
+        catch(NullPointerException e){
+            return new ResponseEntity(HttpStatus.OK);
+        }
     }
 
 
 
     @PostMapping(value="/get-role-permissions")
     public ResponseEntity<List<Privilege>> GetRolePermissions(@RequestBody RolesDTO rolesDTO){
+
 
             List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(rolesDTO);
 
@@ -81,8 +97,17 @@ public class UserController {
     @PostMapping(value="/check-permission")
    // @PreAuthorize("hasPermission()")
     public ResponseEntity CheckPermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
-        boolean hasPermission = rolePrivilegeService.CheckPermission(rolePrivilegeDTO);
-        return new ResponseEntity(hasPermission,HttpStatus.OK);
+            boolean hasPermission = rolePrivilegeService.CheckPermission(rolePrivilegeDTO);
+            if(hasPermission) {
+                logger.info("User has permission");
+                return new ResponseEntity(hasPermission, HttpStatus.OK);
+            }
+            else {
+                logger.error("User doesn't have permission");
+                return new ResponseEntity( HttpStatus.BAD_REQUEST);
+            }
+
+
 
     }
 
@@ -90,7 +115,9 @@ public class UserController {
     @PostMapping(value="/delete-permission")
     @PreAuthorize("hasPermission(1, 'Permission', 'DELETE')")
     public ResponseEntity DeleteRolePermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
+
             rolePrivilegeService.DeleteRolePermission(rolePrivilegeDTO);
+             logger.info("Successfully deleted role permission");
             return new ResponseEntity(HttpStatus.OK);
 
     }
@@ -104,10 +131,14 @@ public class UserController {
 
     @PostMapping(consumes="application/json", value="/register")
     public ResponseEntity registerUser(@RequestBody RegistrationDTO data) {
-        if(userService.isBlocked(data.getEmail()))
+        if(userService.isBlocked(data.getEmail())) {
+            logger.error("User is blocked");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        if (!passwordValidator.isValid(data.getPassword()))
+        }
+        if (!passwordValidator.isValid(data.getPassword())) {
+            logger.error("Password doesnt meet requirements");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 //        try {
 //            userService.registerUser(data);
 //        } catch (Exception ignored) {
@@ -119,44 +150,55 @@ public class UserController {
             ValidationResult validationResult = userValidation.validRegistrationDTO(data);
             if (validationResult.isValid()) {
                 userService.registerUser(data);
+                logger.info("User registered");
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
+                logger.error("User information is not valid");
                 return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
             }
         }catch (IllegalArgumentException e) {
+            logger.error(e.getMessage());
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
         }
     }
     @PostMapping(value = "/login")
-    public ResponseEntity login( @RequestBody LoginDTO loginData) {
+    public ResponseEntity login(HttpServletRequest request, @RequestBody LoginDTO loginData) {
+
         String userEmail = loginData.getEmail();
-        System.out.println(loginData.getEmail()+loginData.getPassword());
-        Authentication authentication = authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginData.getEmail(), loginData.getPassword()));
+        try {
+            Authentication authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(loginData.getEmail(), loginData.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roleNames = GetRoleNames(userDetails);
-        String jwt = tokenUtils.generateToken(userEmail, roleNames);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roleNames = GetRoleNames(userDetails);
+            String jwt = tokenUtils.generateToken(userEmail, roleNames);
 
 
-
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
-
-        return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), userDetails.getUser().getId(),
-                 userDetails.getUsername(),roleNames));
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
+            logger.info("User successfully logged in from");
+            return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), userDetails.getUser().getId(),
+                    userDetails.getUsername(), roleNames));
+        }
+        catch(Exception e){
+            logger.error("Bad credentials");
+            return new  ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @PostMapping(consumes="application/json",value = "/passwordlesslogin")
     public ResponseEntity passwordlessLogin(@RequestBody PasswordlessLoginDTO passwordlessLoginDTO) {
         System.out.println("PasswordlessLogin zapocet!");
         try {
+
             passwordLessTokenService.CreateNewToken(passwordlessLoginDTO.getUsername());
+            logger.info("Token successfully created ");
             return new ResponseEntity<>(HttpStatus.OK);
         }
         catch (IllegalArgumentException e) {
+            logger.error(e.getMessage()+"during passwordless login");
             System.out.println("PUKSAO JE: " + e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -165,12 +207,14 @@ public class UserController {
     @GetMapping(value="/passwordless-login", consumes = "*/*")
     public ResponseEntity passwordlessLoginToken(@RequestParam("token") String token)
     {
-        if (token == null || token.equals(""))
+        if (token == null || token.equals("")) {
+            logger.info("Token doesn't exist");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
+        }
         User user = passwordLessTokenService.loadUserByToken(token);
         if (user==null)
         {
+            logger.info("User failed to log in");
             System.out.println("Nema usera sa tim tokenom!");
             return null;
         }
@@ -186,7 +230,7 @@ public class UserController {
         String jwt = tokenUtils.generateToken(user.getEmail(),roleNames);
 
         RefreshToken refreshToken = refreshTokenService.createRefreshTokenPasswordless(user);
-
+        logger.info("User successfully logged in  from");
         return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), 0L,
                 user.getEmail(),roleNames));
 
@@ -195,17 +239,22 @@ public class UserController {
 
     @GetMapping(value="/register/{email}")
     public ResponseEntity<User> emailExists(@PathVariable String email) {
-        if (email == null)
+        if (email == null) {
+            logger.error("email not found");
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         User user = userService.findByEmail(email);
-        if (user==null)
+        if (user==null) {
+            logger.error("User not found");
             return null;
+        }
+        logger.info("User found"+user.getId());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> RefreshTokenFunction( @RequestBody RefreshTokenRequest request) {
         String requestRefreshToken = request.getRefreshToken();
-
+        logger.info("New access token successfully created with refresh token");
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
@@ -219,18 +268,24 @@ public class UserController {
     @PostMapping("/approve/{email}")
     @PreAuthorize("hasPermission(1, 'User_status', 'UPDATE')")
     public ResponseEntity<HttpStatus> approveUser(@PathVariable String email) {
-            if (email == null)
+            if (email == null) {
+                logger.error("email not found");
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             userService.approveRegistrationRequest(email);
+            logger.info("User request for registration approved");
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/deny/{email}/{reason}")
     @PreAuthorize("hasPermission(1, 'User_status', 'UPDATE')")
     public ResponseEntity<HttpStatus> denyUser(@PathVariable String email,@PathVariable String reason) {
-            if (email == null)
+            if (email == null) {
+                logger.error("email not found");
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             userService.denyRegistrationRequest(email, reason);
+            logger.info("User request for registration denied");
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -239,19 +294,23 @@ public class UserController {
         try {
             userService.verifyUser(token, hmac);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        logger.info("User account activated successfully");
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping(value="/loggedInUser",produces=MediaType.APPLICATION_JSON_VALUE)
     //@PreAuthorize("hasRole('CLIENT')")
     public ResponseEntity getLoggedInUser(HttpServletRequest request) {
         String email = tokenUtils.getEmailDirectlyFromHeader(request);
-        if (email == null)
+        if (email == null) {
+            logger.error("email not found");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
+        }
         User user = userService.findByEmail(email);
         UserDTO userDTO = new UserDTO(user.getId(),user.getFirstName(),user.getLastName(),user.getEmail(),user.getAddress(),user.getPhoneNumber());
+        logger.info("Logged in user"+user.getId());
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
@@ -275,16 +334,21 @@ public class UserController {
     @GetMapping("/all")
     @PreAuthorize("hasPermission(1, 'Employees', 'READ')")
     public ResponseEntity<List<EmployeeDTO>> getAllEmployees(HttpServletRequest request) {
+        logger.info("Reading all employees");
             return new ResponseEntity<List<EmployeeDTO>>(userService.getAll(), HttpStatus.OK);
     }
 
     @PostMapping(consumes="application/json", value="/register/admin")
     @PreAuthorize("hasPermission(1, 'Admin_account', 'CREATE')")
-    public ResponseEntity registerAdmin(@RequestBody RegistrationDTO data) {
-            if(userService.isBlocked(data.getEmail()))
+    public ResponseEntity registerAdmin(@RequestBody RegistrationDTO data,HttpServletRequest request) {
+            if(userService.isBlocked(data.getEmail())) {
+                logger.error("User is blocked, cant access account");
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            if (!passwordValidator.isValid(data.getPassword()))
+            }
+            if (!passwordValidator.isValid(data.getPassword())) {
+                logger.warn("Invalid password, didn't meet all requirements"+"IP:" +getClientIpAddress(request)+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
 //            try {
 //                userService.registerAdmin(data);
 //            } catch (Exception ignored) {
@@ -295,22 +359,27 @@ public class UserController {
             try {
                 ValidationResult validationResult = userValidation.validRegistrationDTO(data);
                 if (validationResult.isValid()) {
+                    logger.info("Successfully register admin "+"IP:" +getClientIpAddress(request)+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
                     userService.registerAdmin(data);
                     return new ResponseEntity<>(HttpStatus.OK);
                 } else {
+                    logger.error("Unsuccessfully register admin"+"IP:" +getClientIpAddress(request)+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
                     return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
                 }
             }catch (IllegalArgumentException e) {
+                logger.warn("Illegal argument"+"IP:" +getClientIpAddress(request)+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
                 return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
         }
     }
     @PostMapping(consumes="application/json", value="/edit/admin")
     @PreAuthorize("hasPermission(1, 'Admin_account', 'UPDATE')")
-    public ResponseEntity editProfileAdmin(@RequestBody RegistrationDTO data) {
+    public ResponseEntity editProfileAdmin(@RequestBody RegistrationDTO data,HttpServletRequest request) {
             if (data.getPassword()!=null) {
-                if (!passwordValidator.isValid(data.getPassword()))
+                if (!passwordValidator.isValid(data.getPassword())) {
+                    logger.warn("Invalid password"+"IP:" +getClientIpAddress(request)+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
                     return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
             }
 //            try {
 //                userService.editAdmin(data);
@@ -322,12 +391,16 @@ public class UserController {
         try {
             ValidationResult validationResult = userValidation.validRegistrationDTO(data);
             if (validationResult.isValid()) {
+
                 userService.editAdmin(data);
+                logger.info("Successfully edit admin information");
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
+                logger.error(validationResult.getErrorMessage());
                 return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
             }
         }catch (IllegalArgumentException e) {
+            logger.error(e.getMessage()+"during edit of admin profile");
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
         }
@@ -340,9 +413,10 @@ public class UserController {
     @GetMapping(value="/loggedInAdmin")
     public ResponseEntity<RegistrationDTO> getLoggedInAdmin(HttpServletRequest request) {
         String email = tokenUtils.getEmailDirectlyFromHeader(request);
-        if (email == null)
+        if (email == null) {
+            logger.error("Admin not found ");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-
+        }
         User user = userService.findByEmail(email);
         RegistrationDTO dto = new RegistrationDTO();
         dto.setEmail(user.getEmail());
@@ -354,14 +428,18 @@ public class UserController {
         dto.setStreetNumber(user.getAddress().getStreetNumber());
         dto.setPhoneNumber(user.getPhoneNumber());
         dto.setTitle(user.getTitle());
+        logger.info("Admin found"+user.getId());
         return new ResponseEntity<RegistrationDTO>(dto, HttpStatus.OK);
     }
     @GetMapping("/isInitial")
     public ResponseEntity<Boolean> getInitialAdmin(HttpServletRequest request) {
         String email = tokenUtils.getEmailDirectlyFromHeader(request);
-        if (email == null)
+        if (email == null) {
+            logger.error("Admin not found ");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         User user = userService.findByEmail(email);
+        logger.info("Admin found and checked if is initial"+user.getId());
         return new ResponseEntity<Boolean>(userService.isInitial(user), HttpStatus.OK);
     }
 
@@ -369,13 +447,18 @@ public class UserController {
     @PostMapping("/edit/admin/pass/{pass}")
     @PreAuthorize("hasPermission(1, 'Initial_password', 'UPDATE')")
     public ResponseEntity<HttpStatus> changeInitialPassword(HttpServletRequest request, @PathVariable String pass) {
-            if (!passwordValidator.isValid(pass))
+            if (!passwordValidator.isValid(pass)) {
+                logger.warn("Invalid password");
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
             String email = tokenUtils.getEmailDirectlyFromHeader(request);
-            if (email == null)
+            if (email == null) {
+                logger.error("User not found");
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            }
             User user = userService.findByEmail(email);
             userService.changeInitialPassword(user, pass);
+            logger.info("User initial password changed");
             return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -386,6 +469,29 @@ public class UserController {
         return hasPermission;
 
     }
+    private String getClientIpAddress(HttpServletRequest request) {
+        String ipAddress = request.getHeader("X-Forwarded-For");
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+        return ipAddress;
+    }
+
+
+
+
 
 
 
