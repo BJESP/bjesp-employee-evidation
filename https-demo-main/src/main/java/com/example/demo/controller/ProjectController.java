@@ -8,6 +8,8 @@ import com.example.demo.model.ValidationResult;
 import com.example.demo.service.ProjectService;
 import com.example.demo.service.UserService;
 import com.example.demo.utils.UserValidation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,11 +33,19 @@ public class ProjectController {
     private UserService userService;
     @Autowired
     private UserValidation userValidation;
+    private Logger logger =  LogManager.getLogger(ProjectController.class);
 
     @GetMapping()
     @PreAuthorize("hasPermission(1, 'Project', 'READ')")
-    public ResponseEntity<List<ProjectDTO>> getAll(HttpServletRequest request) {
+    public ResponseEntity getAll(HttpServletRequest request) {
+        try {
+            logger.info("Reading all projects");
             return new ResponseEntity<List<ProjectDTO>>(projectService.getAll(), HttpStatus.OK);
+        }
+        catch(NullPointerException e){
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     @PostMapping()
     @PreAuthorize("hasPermission(1, 'Project', 'CREATE')")
@@ -55,28 +65,45 @@ public class ProjectController {
     }
     @GetMapping(value="/engineers/{projectId}")
     @PreAuthorize("hasPermission(1, 'Task', 'READ')")
-    public ResponseEntity<List<EngineerDTO>> getAllEngineersNotOnProject(@PathVariable String projectId){
+    public ResponseEntity getAllEngineersNotOnProject(@PathVariable String projectId){
+        try {
+            logger.info("Successfully get all enigneers not working on project ");
             List<EngineerDTO> engineerDTOS = userService.getAllEngineersNotOnProject(projectId);
-            return new ResponseEntity<>(engineerDTOS,HttpStatus.OK);
+            return new ResponseEntity<>(engineerDTOS, HttpStatus.OK);
+        }
+        catch(NullPointerException e){
+            logger.error("NullPointerException occurred: {}", e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     @GetMapping(value="/engineersWorking/{projectId}")
     @PreAuthorize("hasPermission(1, 'Task', 'READ')")
-    public ResponseEntity<List<EngineerDTO>> getAllEngineersOnProject(@PathVariable String projectId){
+    public ResponseEntity getAllEngineersOnProject(@PathVariable String projectId,HttpServletRequest request){
+        try {
+            logger.info("Processing all engineers for projectId: {}", projectId);
             List<EngineerDTO> engineerDTOS = userService.getAllEngineersOnProject(projectId);
             return new ResponseEntity<>(engineerDTOS, HttpStatus.OK);
+        }
+        catch(NullPointerException e){
+            logger.error("NullPointerException occurred: {}", e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     @PostMapping(value="/addTask")
     @PreAuthorize("hasPermission(1, 'Project_task', 'CREATE')")
-    public ResponseEntity AddEngineerToTask(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO){
+    public ResponseEntity AddEngineerToTask(@RequestBody AddEngineerToProjectDTO addEngineerToProjectDTO,HttpServletRequest request){
         try {
             ValidationResult validationResult = userValidation.validAddEngineerToProjectDTO(addEngineerToProjectDTO);
             if (validationResult.isValid()) {
+                logger.info("Added project task to engineer");
                 projectService.AddEngineerToProject(addEngineerToProjectDTO);
                 return new ResponseEntity<>(HttpStatus.OK);
             } else {
+                logger.error(validationResult.getErrorMessage());
                 return new ResponseEntity<>(validationResult.getErrorMessage(), HttpStatus.BAD_REQUEST);
             }
         }catch (IllegalArgumentException e) {
+            logger.error("AddEngineerToTask: IllegalArgumentException occurred - {}", e.getMessage());
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
 
         }
@@ -90,21 +117,41 @@ public class ProjectController {
     }
     @GetMapping(value="/managersWorking/{projectId}")
     @PreAuthorize("hasPermission(1, 'Project_managers', 'READ')")
-    public ResponseEntity<List<EmployeeDTO>> getAllManagersOnProject(@PathVariable String projectId){
+    public ResponseEntity getAllManagersOnProject(@PathVariable String projectId,HttpServletRequest request){
+        try {
+            logger.info("Reading managers working on project");
             List<EmployeeDTO> managersDTOS = projectService.getAllManagersOnProject(projectId);
-            return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
+            return new ResponseEntity<>(managersDTOS, HttpStatus.OK);
+        }
+        catch(NullPointerException e){
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     @GetMapping(value="/managersNotWorking/{projectId}")
     @PreAuthorize("hasPermission(1, 'Project_managers', 'READ')")
-    public ResponseEntity<List<EmployeeDTO>> getAllManagersNotOnProject(@PathVariable String projectId){
+    public ResponseEntity getAllManagersNotOnProject(@PathVariable String projectId, HttpServletRequest request){
+        try {
+            logger.info("Reading managers who are not working on project");
             List<EmployeeDTO> managersDTOS = projectService.getAllManagersNotOnProject(projectId);
-            return new ResponseEntity<>(managersDTOS,HttpStatus.OK);
+            return new ResponseEntity<>(managersDTOS, HttpStatus.OK);
+        }
+        catch(NullPointerException e){
+            logger.error(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
     }
     @PostMapping(value="/addManagerAdmin/{email}/{projectId}")
     @PreAuthorize("hasPermission(1, 'Project_managers', 'UPDATE')")
-    public ResponseEntity<HttpStatus> AddManagerToProject(@PathVariable String email,@PathVariable String projectId){
+    public ResponseEntity<HttpStatus> AddManagerToProject(@PathVariable String email,@PathVariable String projectId,HttpServletRequest request){
+        try {
+            logger.info("Added manager  to project");
             projectService.addManagerToProject(projectId, email);
             return new ResponseEntity<>(HttpStatus.OK);
-
+        }
+        catch(NullPointerException e){
+            logger.error("Unsuccessfully added manager to project");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }

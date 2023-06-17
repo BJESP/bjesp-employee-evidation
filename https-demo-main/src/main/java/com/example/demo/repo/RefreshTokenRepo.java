@@ -12,4 +12,5 @@ public interface RefreshTokenRepo extends JpaRepository<RefreshToken,Long> {
 
     @Modifying
     int deleteByUser(User user);
+    //void deleteByExpiryDateLessThan(Date now);
 }

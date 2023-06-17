@@ -657,3 +657,6 @@
 2023-06-17 12:29:48.444  INFO 10676 --- [https-jsse-nio-8000-exec-5] o.s.w.s.DispatcherServlet                : Completed initialization in 4 ms
 2023-06-17 12:29:49.711  INFO 10676 --- [https-jsse-nio-8000-exec-5] c.e.d.c.UserController                   : User successfully logged in fromIP:0:0:0:0:0:0:0:1 HOST:0:0:0:0:0:0:0:1PORT:50125
 2023-06-17 12:29:50.049  INFO 10676 --- [https-jsse-nio-8000-exec-6] c.e.d.c.UserController                   : Logged in user1
+2023-06-17 12:47:01.921  INFO 10676 --- [SpringContextShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2023-06-17 12:47:02.024  INFO 10676 --- [SpringContextShutdownHook] c.z.h.HikariDataSource                   : HikariPool-1 - Shutdown initiated...
+2023-06-17 12:47:02.073  INFO 10676 --- [SpringContextShutdownHook] c.z.h.HikariDataSource                   : HikariPool-1 - Shutdown completed.

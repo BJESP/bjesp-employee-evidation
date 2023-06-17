@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{dd.MM.yyyy. HH:mm:ss} %-5p [%-20c{1}] %m%n" />
+        </Console>
+        <RollingFile name="MyFile" fileName="./../logs/example.log" append="true"
+                     filePattern="./../logs/example-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="%d{dd.MM.yyyy. HH:mm:ss} %-5p [%-20c{1}] %m%n"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="30 MB"/>
+                <TimeBasedTriggeringPolicy interval="1"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+    </Appenders>
+    <Loggers>
+        <Logger name="com.example.demo" level="info" />
+        <Root level="info">
+            <AppenderRef ref="Console" level="info" />
+            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="AppFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
+
+
+
+
+
