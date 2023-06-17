@@ -68,11 +68,22 @@ public class UserController {
             return new ResponseEntity<>(privileges,HttpStatus.OK);
     }
 
-    @GetMapping(value="/get-role-permissions/{roleId}")
-    @PreAuthorize("hasPermission(1, 'Permission', 'READ')")
-    public ResponseEntity GetRolePermissions(@PathVariable Long roleId){
-            List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(roleId);
-            return new ResponseEntity<>(privileges,HttpStatus.OK);
+
+
+    @PostMapping(value="/get-role-permissions")
+    public ResponseEntity<List<Privilege>> GetRolePermissions(@RequestBody RolesDTO rolesDTO){
+
+            List<Privilege> privileges = rolePrivilegeService.GetRolePermissions(rolesDTO);
+
+            return new ResponseEntity<List<Privilege>>(privileges,HttpStatus.OK);
+    }
+
+    @PostMapping(value="/check-permission")
+   // @PreAuthorize("hasPermission()")
+    public ResponseEntity CheckPermission(@RequestBody RolePrivilegeDTO rolePrivilegeDTO){
+        boolean hasPermission = rolePrivilegeService.CheckPermission(rolePrivilegeDTO);
+        return new ResponseEntity(hasPermission,HttpStatus.OK);
+
     }
 
 
@@ -183,13 +194,16 @@ public class UserController {
 
 
     @GetMapping(value="/register/{email}")
-    public ResponseEntity<User> emailExists(@PathVariable String email) {
+    public ResponseEntity<UserDTO> emailExists(@PathVariable String email) {
+        System.out.println(email);
         if (email == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         User user = userService.findByEmail(email);
+        UserDTO dto = new UserDTO();
         if (user==null)
             return null;
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        dto.setEmail(user.getEmail());
+        return new ResponseEntity<>(dto, HttpStatus.OK);
     }
     @PostMapping("/refreshtoken")
     public ResponseEntity<?> RefreshTokenFunction( @RequestBody RefreshTokenRequest request) {
@@ -366,6 +380,16 @@ public class UserController {
             User user = userService.findByEmail(email);
             userService.changeInitialPassword(user, pass);
             return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @PostMapping("/search")
+    @PreAuthorize("hasPermission(1, 'Employees', 'READ')")
+    public ResponseEntity<List<EngineerSearchDTO>> searchEngineers(@RequestBody EngineerSearchDTO data) {
+        return new ResponseEntity<>(userService.searchEngineers(data), HttpStatus.OK);
+    }
+    @GetMapping("/engineers/search")
+    @PreAuthorize("hasPermission(1, 'Employees', 'READ')")
+    public ResponseEntity<List<EngineerSearchDTO>> getEngineersForSearch(HttpServletRequest request) {
+        return new ResponseEntity<>(userService.getEngineersForSearch(), HttpStatus.OK);
     }
 
 

@@ -4,10 +4,7 @@ import com.example.demo.dto.*;
 import com.example.demo.model.*;
 import com.example.demo.repo.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +14,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -59,7 +57,7 @@ public class EngineerService
         return skill;
     }
 
-    public boolean UpdateEngineerCV(MultipartFile file, String username) throws IOException {
+    public boolean UpdateEngineerCV(byte[] file, String username) throws IOException {
 
         System.out.println("EMAIL: " + username);
         if(!userRepo.existsByEmail(username))
@@ -68,7 +66,7 @@ public class EngineerService
             return false;
         }
 
-        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
+        CVDocument newCvDocument = cvDocumentRepo.findByEngineerProfile(Optional.ofNullable((EngineerProfile) userRepo.findByEmail(username)));
 
 
         if (newCvDocument == null)
@@ -78,7 +76,7 @@ public class EngineerService
         }
 
         saveFile(newCvDocument.getInternalName(), file);
-        newCvDocument.setDocumentName(file.getOriginalFilename());
+        //newCvDocument.setDocumentName(file.getOriginalFilename());
         newCvDocument.setEngineerProfile((EngineerProfile) userRepo.findByEmail(username));
 
         cvDocumentRepo.save(newCvDocument);
@@ -86,7 +84,7 @@ public class EngineerService
         return true;
     }
 
-    public static boolean saveFile(String internalName, MultipartFile multipartFile)
+    public static boolean saveFile(String internalName, byte[] multipartFile)
             throws IOException {
         Path uploadPath = Paths.get("Files-Upload");
 
@@ -94,10 +92,9 @@ public class EngineerService
             Files.createDirectories(uploadPath);
         }
 
-
-        try (InputStream inputStream = multipartFile.getInputStream()) {
+        try {
             Path filePath = uploadPath.resolve(internalName + ".pdf");
-            Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+            Files.write(filePath, multipartFile);
         } catch (IOException ioe) {
             throw new IOException("Could not save file:", ioe);
         }
@@ -226,4 +223,61 @@ public class EngineerService
 
         return engineerAccountDetailsDTO;
     }
+
+    public static boolean isNumeric(String str) {
+        try {
+            Double.parseDouble(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public byte[] loadEngineerCv(String username) {
+    try {
+        CVDocument cvDocument = null;
+        if(isNumeric(username)) {
+            if (!userRepo.existsById(Long.valueOf(username))) {
+                System.out.println("NEMA TOG USERA");
+                return null;
+            }
+
+            cvDocument = cvDocumentRepo.findByEngineerProfile(userRepo.findById(Long.valueOf(username)));
+            if (cvDocument == null) {
+                return null; // CV not found for the engineer
+            }
+        }
+        else
+        {
+            if (!userRepo.existsByEmail((username))) {
+                System.out.println("NEMA TOG USERA");
+                return null;
+            }
+
+            cvDocument = cvDocumentRepo.findByEngineerProfile(Optional.ofNullable(userRepo.findByEmail(username)));
+            if (cvDocument == null) {
+                return null; // CV not found for the engineer
+            }
+        }
+
+        byte[] encryptedCv = readFile(cvDocument.getInternalName());
+        if (encryptedCv == null) {
+            return null; // Failed to read the CV file
+        }
+
+        return encryptedCv;
+    } catch (Exception e) {
+        // Handle any exceptions that may occur during the loading process
+        e.printStackTrace();
+        // Return null or throw an appropriate exception
+        return null;
+    }
+}
+
+    private byte[] readFile(String internalName) throws IOException {
+        Path filePath = Paths.get("Files-Upload", internalName + ".pdf");
+        return Files.readAllBytes(filePath);
+    }
+
+
 }
