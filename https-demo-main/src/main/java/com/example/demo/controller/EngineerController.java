@@ -348,7 +348,7 @@ public class EngineerController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-               
+
             logger.info("Created engineer CV");
                 return new ResponseEntity<>(createdCV, HttpStatus.OK);
             }
