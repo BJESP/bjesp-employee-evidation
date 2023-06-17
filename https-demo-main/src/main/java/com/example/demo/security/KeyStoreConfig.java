@@ -16,11 +16,25 @@ public class KeyStoreConfig {
     @Value("${ks.password}")
     private String ksPassword;
 
+
+    @Value("${pikulaKS.filename}")
+    private String FileNamePikula;
+
+    @Value("${pikulaKS.alias}")
+    private String aliasPikula;
+
+    @Value("${pikulaKS.password}")
+    private String ksPasswordPikula;
+
+
     public KeyStoreConfig() {
     }
 
     public String getFileName() {
         return FileName;
+    }
+    public String getPikulaFileName() {
+        return FileNamePikula;
     }
 
     public void setFileName(String fileName) {
@@ -30,6 +44,9 @@ public class KeyStoreConfig {
     public String getAlias() {
         return alias;
     }
+    public String getPikulaAlias() {
+        return aliasPikula;
+    }
 
     public void setAlias(String alias) {
         this.alias = alias;
@@ -37,6 +54,11 @@ public class KeyStoreConfig {
 
     public String getKsPassword() {
         return ksPassword;
+    }
+
+
+    public String getPikulaKsPassword() {
+        return ksPasswordPikula;
     }
 
     public void setKsPassword(String ksPassword) {

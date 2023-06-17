@@ -2,17 +2,14 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.*;
 import com.example.demo.model.*;
-import com.example.demo.repo.SkillRepo;
-import com.example.demo.repo.UserRepo;
+import com.example.demo.security.KeyStoreConfig;
 import com.example.demo.service.EngineerService;
-import com.example.demo.utils.GeneralValidation;
 import com.example.demo.utils.PasswordValidator;
 
 import com.example.demo.service.UserService;
 import com.example.demo.utils.UserValidation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.annotations.Check;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +26,7 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +38,6 @@ import java.nio.file.Paths;
 import java.security.*;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.List;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 @CrossOrigin(origins = "*")
@@ -50,6 +47,8 @@ public class EngineerController {
 
     private static final String RSA_PRIVATE_KEY_FILE = "private.key";
     private static final String RSA_PUBLIC_KEY_FILE = "public.key";
+
+    private final KeyStoreConfig keyStoreConfig;
 
     @Autowired
     EngineerService engineerService;
@@ -62,6 +61,10 @@ public class EngineerController {
     UserValidation userValidation;
 
     private Logger logger =  LogManager.getLogger(EngineerController.class);
+
+    public EngineerController(KeyStoreConfig keyStoreConfig) {
+        this.keyStoreConfig = keyStoreConfig;
+    }
 
     //ALSO USE FOR CREATE
     @PostMapping(value="/update-engineer-skill")
@@ -185,7 +188,7 @@ public class EngineerController {
             aesCipher.init(Cipher.ENCRYPT_MODE, aesKey);
             byte[] encryptedDocument = aesCipher.doFinal(document);
 
-            // Provera da li postoje RSA ključevi
+          /*  // Provera da li postoje RSA ključevi
             if (!keyFilesExist())
             {
                 // Generisanje RSA ključeva
@@ -194,12 +197,21 @@ public class EngineerController {
                 // Čuvanje RSA ključeva
                 savePrivateKey(rsaKeyPair.getPrivate(), RSA_PRIVATE_KEY_FILE);
                 savePublicKey(rsaKeyPair.getPublic(), RSA_PUBLIC_KEY_FILE);
-            }
+            }*/
+
+            System.out.println("1");
+            System.out.println("2");
+
 
             // Enkripcija AES ključa koristeći RSA javni ključ
             Cipher rsaCipher = Cipher.getInstance("RSA");
-            rsaCipher.init(Cipher.ENCRYPT_MODE, loadPublicKey(RSA_PUBLIC_KEY_FILE));
+            System.out.println("3");
+            System.out.println("3.1 " +  loadKeyFromKeyStore(keyStoreConfig).getPublic());
+            rsaCipher.init(Cipher.ENCRYPT_MODE, loadKeyFromKeyStore(keyStoreConfig).getPublic());
+            System.out.println("4");
+
             byte[] encryptedAESKey = rsaCipher.doFinal(aesKey.getEncoded());
+            System.out.println("5");
 
             // Kombinacija šifrovanog dokumenta i šifrovanog AES ključa
             byte[] combinedData = new byte[encryptedDocument.length + encryptedAESKey.length];
@@ -208,9 +220,35 @@ public class EngineerController {
 
             return combinedData;
         } catch (Exception e) {
+            System.out.println("BAGCINA: " + e);
             // Handle exception appropriately
         }
 
+        return null;
+    }
+
+    public static KeyPair loadKeyFromKeyStore(KeyStoreConfig keyStoreConfig) throws Exception {
+        try {
+            System.out.println("3.2");
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            System.out.println("3.3");
+            System.out.println("FN: " + keyStoreConfig.getPikulaFileName());
+            System.out.println("PS: " +keyStoreConfig.getPikulaKsPassword().toCharArray());
+            keyStore.load(new FileInputStream(keyStoreConfig.getPikulaFileName()), keyStoreConfig.getPikulaKsPassword().toCharArray());
+
+            System.out.println("3.4");
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry(keyStoreConfig.getPikulaAlias(), new KeyStore.PasswordProtection(keyStoreConfig.getPikulaKsPassword().toCharArray()));
+            System.out.println("3.5");
+            PrivateKey privateKey = privateKeyEntry.getPrivateKey();
+            System.out.println("3.6");
+            PublicKey publicKey = privateKeyEntry.getCertificate().getPublicKey();
+            System.out.println("3.7");
+            return new KeyPair(publicKey, privateKey);
+
+        } catch (Exception e) {
+        System.out.println("BAGCINA2: " + e);
+        // Handle exception appropriately
+        }
         return null;
     }
 
@@ -241,7 +279,8 @@ public class EngineerController {
     private byte[] decryptDocument(byte[] combinedData) {
         try {
             // Load RSA private key
-            PrivateKey privateKey = loadPrivateKey(RSA_PRIVATE_KEY_FILE);
+
+            PrivateKey privateKey = (PrivateKey) loadKeyFromKeyStore(keyStoreConfig).getPrivate();
 
             // Razdvajanje šifrovanog dokumenta i šifrovanog AES ključa
             int encryptedDocumentLength = combinedData.length - 256; // 256 bytes for RSA encrypted AES key
