@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -164,7 +167,10 @@ public class UserController {
     }
     @PostMapping(value = "/login")
     public ResponseEntity login(HttpServletRequest request, @RequestBody LoginDTO loginData) {
-
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        assert requestAttributes != null;
+        ServletServerHttpRequest servletRequest = new ServletServerHttpRequest(requestAttributes.getRequest());
+        String ipAddress = servletRequest.getRemoteAddress().getAddress().getHostAddress();
         String userEmail = loginData.getEmail();
         try {
             Authentication authentication = authenticationManager
@@ -178,7 +184,7 @@ public class UserController {
 
 
             RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUser().getId());
-            logger.info("User successfully logged in from");
+            logger.info("User successfully logged in from"+"IP:" +ipAddress+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
             return ResponseEntity.ok(new LoginInResponse(jwt, refreshToken.getToken(), userDetails.getUser().getId(),
                     userDetails.getUsername(), roleNames));
         }
