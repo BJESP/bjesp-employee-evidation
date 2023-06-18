@@ -31,7 +31,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
-
+	@Autowired
+	public WebSocketConfig webSocketConfig;
 
 	@Autowired
 	private AuthenticationEntryPointJwt unauthorizedHandler;
@@ -51,6 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
+
 	@Autowired
 	private CustomUserDetailsService jwtUserDetailsService;
 	@Bean
