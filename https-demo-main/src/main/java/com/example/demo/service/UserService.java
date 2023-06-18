@@ -9,7 +9,6 @@ import com.example.demo.repo.UserRepo;
 import com.example.demo.utils.HMAC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -27,8 +26,10 @@ public class UserService {
     private final BlockedUserRepo blockedUserRepository;
     private final ProjectService projectService;
     private final EngineerRepo engineerRepo;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final RefreshTokenService refreshTokenService;
 
-    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService, EngineerRepo engineerRepo) {
+    public UserService(UserRepo userRepository, RoleRepo roleRepository, EmailService emailService, RegistrationTokenService registrationTokenService, HMAC hmacService, BlockedUserRepo blockedUserRepository, ProjectService projectService, EngineerRepo engineerRepo, PasswordResetTokenService passwordResetTokenService, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
 
         this.roleRepository = roleRepository;
@@ -38,6 +39,8 @@ public class UserService {
         this.blockedUserRepository = blockedUserRepository;
         this.projectService = projectService;
         this.engineerRepo = engineerRepo;
+        this.passwordResetTokenService = passwordResetTokenService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public User findByUserEmail(String userEmail) {
@@ -278,5 +281,35 @@ public class UserService {
     }
     private boolean isNotBlank(String str) {
         return str != null && !str.trim().isEmpty();
+    }
+    public void resetPasswordRequest(String email) {
+        User user = userRepository.findByEmail(email);
+        emailService.sendResetEmail(user);
+    }
+    public boolean resetPassword(ResetPasswordDTO data) throws Exception{
+        PasswordResetToken secureToken = passwordResetTokenService.findByToken(data.getToken());
+        User user = userRepository.getOne(secureToken.getUser().getId());
+        if (Objects.isNull(user) || Objects.isNull(secureToken)) {
+            return false;
+        }
+        if(secureToken.isExpired()) {
+            passwordResetTokenService.removeToken(secureToken);
+        }
+        if (Objects.isNull(secureToken) || !data.getToken().equals(secureToken.getToken()) || secureToken.isExpired()) {
+            throw new Exception("Invalid token");
+        }
+
+        user.setPassword(data.getPassword());
+        userRepository.save(user);
+        //brise se da bi moglo samo jednom da se iskoristi
+        passwordResetTokenService.removeToken(secureToken);
+        return true;
+    }
+    public void blockUser(String email) {
+        User user = userRepository.findByEmail(email);
+        user.setBlocked(true);
+        user.setActive(false);
+        refreshTokenService.deleteByUserId(user.getId());
+        userRepository.save(user);
     }
 }
