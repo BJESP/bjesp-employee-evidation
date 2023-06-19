@@ -189,7 +189,7 @@ public class UserController {
                     userDetails.getUsername(), roleNames));
         }
         catch(Exception e){
-            logger.error("Bad credentials");
+            logger.error("No user found with username "+userEmail);
             return new  ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

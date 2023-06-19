@@ -13,7 +13,9 @@
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
-        <LogEventListener name="LogEventListener"  />
+        <LogEventListener name="LogEventListener" >
+
+        </LogEventListener>
     </Appenders>
     <Loggers>
         <Logger name="com.example.demo" level="info" />

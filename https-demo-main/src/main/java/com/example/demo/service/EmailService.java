@@ -97,4 +97,17 @@ public class EmailService {
         System.out.println("mail sent successfully");
     }
 
+    @Async
+    public void sendWarningEmail(String toEmail,String messageError){
+        SimpleMailMessage message=new SimpleMailMessage();
+        message.setFrom("isa.hospitall@gmail.com");
+        message.setTo(toEmail);
+        message.setText(messageError );
+        message.setSubject("Suspicious action-warning");
+
+        mailSender.send(message);
+
+        System.out.println("mail sent successfully");
+    }
+
 }
