@@ -1,3 +1,4 @@
+
 2023-06-16 15:49:47.036  INFO 11888 --- [main] c.e.d.DemoApplication                    : Starting DemoApplication using Java 19.0.1 on DESKTOP-F7BK8MP with PID 11888 (C:\Users\Cvetana\Downloads\https-demo-main\https-demo-main\target\classes started by Cvetana in C:\Users\Cvetana\Downloads\https-demo-main\https-demo-main)
 2023-06-16 15:49:47.058  INFO 11888 --- [main] c.e.d.DemoApplication                    : No active profile set, falling back to default profiles: default
 2023-06-16 15:49:48.632  INFO 11888 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Multiple Spring Data modules found, entering strict repository configuration mode!
@@ -716,3 +717,4 @@
 2023-06-17 13:06:00.319  INFO 8048 --- [SpringContextShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2023-06-17 13:06:00.799  INFO 8048 --- [SpringContextShutdownHook] c.z.h.HikariDataSource                   : HikariPool-1 - Shutdown initiated...
 2023-06-17 13:06:01.068  INFO 8048 --- [SpringContextShutdownHook] c.z.h.HikariDataSource                   : HikariPool-1 - Shutdown completed.
+

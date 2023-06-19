@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.example.demo.dto.RegistrationDTO;
+import com.example.demo.security.StringAttributeConverter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,18 +27,22 @@ public class User implements UserDetails {
 
     @JsonIgnore
     @Column(name = "password")
+    @Convert(converter = StringAttributeConverter.class)
     private String password;
 
     @Column(name = "first_name")
+    @Convert(converter = StringAttributeConverter.class)
     private String firstName;
 
     @Column(name = "last_name")
+    @Convert(converter = StringAttributeConverter.class)
     private String lastName;
 
     @Column(name = "username")
     private String username;
 
     @Column(name = "email", unique = true, nullable = false)
+    @Convert(converter = StringAttributeConverter.class)
     private String email;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -45,9 +50,11 @@ public class User implements UserDetails {
     private Address address;
 
     @Column
+    @Convert(converter = StringAttributeConverter.class)
     private String phoneNumber;
 
     @Column
+    @Convert(converter = StringAttributeConverter.class)
     private String title;
 
     @Column
@@ -68,8 +75,16 @@ public class User implements UserDetails {
     private boolean changedPassword;
     @Column
     private boolean initialAdmin;
+    @Column
+    private boolean blocked;
 
+    public boolean isBlocked() {
+        return blocked;
+    }
 
+    public void setBlocked(boolean blocked) {
+        this.blocked = blocked;
+    }
 
     public void setUsername(String username) {
         this.username = username;
@@ -110,7 +125,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return isActive();
+        return (isActive() && !isBlocked());
     }
 
 

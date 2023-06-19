@@ -514,6 +514,48 @@ public class UserController {
         return ipAddress;
     }
 
+    @PostMapping("/password-request/{email}")
+    public ResponseEntity<HttpStatus> resetPasswordRequest(@PathVariable String email) {
+        if (email == null) {
+            logger.error("email not found");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.resetPasswordRequest(email);
+        logger.info("Password reset request sent");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    @PostMapping("/new-password")
+    public ResponseEntity<String> resetPassword(HttpServletRequest request, @RequestBody ResetPasswordDTO data) {
+        if (data.getPassword() == null) {
+            logger.error("password not found");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        if (!passwordValidator.isValid(data.getPassword())) {
+            logger.warn("Invalid password, didn't meet all requirements"+"IP:" +getClientIpAddress(request)+" HOST:"+request.getRemoteHost()+ "PORT:"+request.getRemotePort());
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            userService.resetPassword(data);
+        } catch (Exception e) {
+            logger.error(e.getMessage()+"during password reset");
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
+        }
+        logger.info("Password reset");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("/block/{email}")
+    @PreAuthorize("hasPermission(1, 'User_status', 'UPDATE')")
+    public ResponseEntity<HttpStatus> blockUser(@PathVariable String email) {
+        if (email == null) {
+            logger.error("email not found");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        userService.blockUser(email);
+        logger.info("User blocked");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 
 

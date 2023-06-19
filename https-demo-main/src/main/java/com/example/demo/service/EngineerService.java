@@ -3,15 +3,19 @@ package com.example.demo.service;
 import com.example.demo.dto.*;
 import com.example.demo.model.*;
 import com.example.demo.repo.*;
+import com.example.demo.security.KeyStoreConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -232,6 +236,8 @@ public class EngineerService
             return false;
         }
     }
+
+
 
     public byte[] loadEngineerCv(String username) {
     try {
