@@ -2171,4 +2171,80 @@ Caused by: java.lang.NullPointerException: Cannot invoke "com.example.demo.servi
 |19.06.2023. 12:40:45|INFO |LocalContainerEntityManagerFactoryBean|Closing JPA EntityManagerFactory for persistence unit 'default'
 |19.06.2023. 12:40:45|INFO |HikariDataSource    |HikariPool-1 - Shutdown initiated...
 |19.06.2023. 12:40:45|INFO |HikariDataSource    |HikariPool-1 - Shutdown completed.
+|19.06.2023. 12:49:52|INFO |DemoApplication     |Starting DemoApplication using Java 19.0.1 on DESKTOP-F7BK8MP with PID 9412 (C:\Users\Cvetana\Downloads\https-demo-main\https-demo-main\target\classes started by Cvetana in C:\Users\Cvetana\Downloads\https-demo-main\https-demo-main)
+|19.06.2023. 12:49:52|INFO |DemoApplication     |No active profile set, falling back to default profiles: default
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationDelegate|Multiple Spring Data modules found, entering strict repository configuration mode!
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationDelegate|Bootstrapping Spring Data JDBC repositories in DEFAULT mode.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.AddressRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.BlockedUserRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.CVDocumentRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.EngineerRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.PasswordResetTokenRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.PasswordlessTokenRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.PrivilegeRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.ProjectManagerRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.ProjectRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.ProjectTaskRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.RefreshTokenRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.RegistrationTokenRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.RoleRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.SkillRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationExtensionSupport|Spring Data JDBC - Could not safely identify store assignment for repository candidate interface com.example.demo.repo.UserRepo. If you want this repository to be a JDBC repository, consider annotating your entities with one of these annotations: org.springframework.data.relational.core.mapping.Table.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationDelegate|Finished Spring Data repository scanning in 129 ms. Found 0 JDBC repository interfaces.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationDelegate|Multiple Spring Data modules found, entering strict repository configuration mode!
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationDelegate|Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+|19.06.2023. 12:49:53|INFO |RepositoryConfigurationDelegate|Finished Spring Data repository scanning in 152 ms. Found 15 JPA repository interfaces.
+|19.06.2023. 12:49:54|INFO |PostProcessorRegistrationDelegate$BeanPostProcessorChecker|Bean 'org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler@4116f66a' of type [org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+|19.06.2023. 12:49:54|INFO |PostProcessorRegistrationDelegate$BeanPostProcessorChecker|Bean 'methodSecurityConfig' of type [com.example.demo.security.MethodSecurityConfig$$EnhancerBySpringCGLIB$$6a692be2] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+|19.06.2023. 12:49:54|INFO |PostProcessorRegistrationDelegate$BeanPostProcessorChecker|Bean 'methodSecurityMetadataSource' of type [org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+|19.06.2023. 12:49:55|INFO |TomcatWebServer     |Tomcat initialized with port(s): 8000 (https)
+|19.06.2023. 12:49:55|INFO |Http11NioProtocol   |Initializing ProtocolHandler ["https-jsse-nio-8000"]
+|19.06.2023. 12:49:55|INFO |StandardService     |Starting service [Tomcat]
+|19.06.2023. 12:49:55|INFO |StandardEngine      |Starting Servlet engine: [Apache Tomcat/9.0.45]
+|19.06.2023. 12:49:55|INFO |[/]                 |Initializing Spring embedded WebApplicationContext
+|19.06.2023. 12:49:55|INFO |ServletWebServerApplicationContext|Root WebApplicationContext: initialization completed in 2930 ms
+|19.06.2023. 12:49:55|WARN |JpaBaseConfiguration$JpaWebConfiguration|spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+|19.06.2023. 12:49:55|INFO |LogHelper           |HHH000204: Processing PersistenceUnitInfo [name: default]
+|19.06.2023. 12:49:55|INFO |Version             |HHH000412: Hibernate ORM core version 5.4.30.Final
+|19.06.2023. 12:49:56|INFO |Version             |HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+|19.06.2023. 12:49:56|INFO |HikariDataSource    |HikariPool-1 - Starting...
+|19.06.2023. 12:49:56|INFO |HikariDataSource    |HikariPool-1 - Start completed.
+|19.06.2023. 12:49:56|INFO |Dialect             |HHH000400: Using dialect: org.hibernate.dialect.PostgreSQL95Dialect
+|19.06.2023. 12:49:57|WARN |AnnotationBinder    |HHH000137: Root entity should not hold a PrimaryKeyJoinColum(s), will be ignored: com.example.demo.model.EngineerProfile
+|19.06.2023. 12:49:57|WARN |AnnotationBinder    |HHH000137: Root entity should not hold a PrimaryKeyJoinColum(s), will be ignored: com.example.demo.model.ProjectManagerProfile
+|19.06.2023. 12:49:58|WARN |SqlExceptionHelper  |SQL Warning Code: 0, SQLState: 00000
+|19.06.2023. 12:49:58|WARN |SqlExceptionHelper  |constraint "uk_71lqwbwtklmljk3qlsugr1mig" of relation "password_reset_tokens" does not exist, skipping
+|19.06.2023. 12:49:59|INFO |JtaPlatformInitiator|HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+|19.06.2023. 12:49:59|INFO |LocalContainerEntityManagerFactoryBean|Initialized JPA EntityManagerFactory for persistence unit 'default'
+|19.06.2023. 12:49:59|INFO |ThreadPoolTaskExecutor|Initializing ExecutorService 'clientInboundChannelExecutor'
+|19.06.2023. 12:49:59|INFO |ThreadPoolTaskExecutor|Initializing ExecutorService 'clientOutboundChannelExecutor'
+|19.06.2023. 12:49:59|INFO |ThreadPoolTaskExecutor|Initializing ExecutorService 'brokerChannelExecutor'
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/auth/login', POST] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/webjars/**', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/*.html', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='favicon.ico', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/**/*.html', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/auth/confirm-mail', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/**/*.css', GET] with []
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure Ant [pattern='/**/*.js', GET] with []
+|19.06.2023. 12:50:03|INFO |ThreadPoolTaskScheduler|Initializing ExecutorService 'messageBrokerTaskScheduler'
+|19.06.2023. 12:50:03|INFO |DefaultSecurityFilterChain|Will secure any request with [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@40ff56f7, org.springframework.security.web.context.SecurityContextPersistenceFilter@3796ff4, org.springframework.security.web.header.HeaderWriterFilter@69c7fe78, org.springframework.web.filter.CorsFilter@64648af1, org.springframework.security.web.authentication.logout.LogoutFilter@33c91567, com.example.demo.security.TokenAuthenticationFilter@1a4564a2, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@13e12ab6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@224f90eb, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@42d65ffc, org.springframework.security.web.session.SessionManagementFilter@5096be74, org.springframework.security.web.access.ExceptionTranslationFilter@19beeb61, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@2360ebe2]
+|19.06.2023. 12:50:04|INFO |Http11NioProtocol   |Starting ProtocolHandler ["https-jsse-nio-8000"]
+|19.06.2023. 12:50:04|INFO |TomcatWebServer     |Tomcat started on port(s): 8000 (https) with context path ''
+|19.06.2023. 12:50:04|INFO |SimpleBrokerMessageHandler|Starting...
+|19.06.2023. 12:50:04|INFO |SimpleBrokerMessageHandler|BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3aafa1c1]]
+|19.06.2023. 12:50:04|INFO |SimpleBrokerMessageHandler|Started.
+|19.06.2023. 12:50:04|INFO |DemoApplication     |Started DemoApplication in 13.549 seconds (JVM running for 15.803)
+|19.06.2023. 12:51:03|INFO |WebSocketMessageBrokerStats|WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+|19.06.2023. 12:52:29|INFO |SimpleBrokerMessageHandler|Stopping...
+|19.06.2023. 12:52:29|INFO |SimpleBrokerMessageHandler|BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@3aafa1c1]]
+|19.06.2023. 12:52:29|INFO |SimpleBrokerMessageHandler|Stopped.
+|19.06.2023. 12:52:29|INFO |ThreadPoolTaskScheduler|Shutting down ExecutorService 'messageBrokerTaskScheduler'
+|19.06.2023. 12:52:29|INFO |ThreadPoolTaskExecutor|Shutting down ExecutorService 'brokerChannelExecutor'
+|19.06.2023. 12:52:29|INFO |ThreadPoolTaskExecutor|Shutting down ExecutorService 'clientOutboundChannelExecutor'
+|19.06.2023. 12:52:29|INFO |ThreadPoolTaskExecutor|Shutting down ExecutorService 'clientInboundChannelExecutor'
+|19.06.2023. 12:52:29|INFO |LocalContainerEntityManagerFactoryBean|Closing JPA EntityManagerFactory for persistence unit 'default'
+|19.06.2023. 12:52:29|INFO |HikariDataSource    |HikariPool-1 - Shutdown initiated...
+|19.06.2023. 12:52:29|INFO |HikariDataSource    |HikariPool-1 - Shutdown completed.
 |
