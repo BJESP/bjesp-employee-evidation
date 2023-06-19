@@ -1,8 +1,10 @@
 package com.example.demo.security;
 
+import com.example.demo.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
+	@Autowired
+	public WebSocketConfig webSocketConfig;
+
 
 
 	@Autowired
@@ -51,6 +56,20 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
+	@Autowired
+	private MessageService messageService;
+
+	@Autowired
+	private SimpMessagingTemplate messagingTemplate;
+	/*@Bean
+	public LogEventListener logEventListener() {
+		LogEventListener appender = LogEventListener.createAppender();
+		appender.setMessageService(messageService);
+		appender.setMessagingTemplate(messagingTemplate);
+		appender.start();
+		return appender;
+	}*/
+
 	@Autowired
 	private CustomUserDetailsService jwtUserDetailsService;
 	@Bean
@@ -87,7 +106,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 				//.httpBasic().disable().formLogin().disable()
 				// svim korisnicima dopusti da pristupe putanjama /auth/login
-				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register","/project-manager/*").permitAll()
+				.authorizeRequests().antMatchers("/auth/login", "/auth/confirm-mail", "/auth/deny/{email}", "/auth/approve/{email}","/auth/register/{email}", "/auth/register","/project-manager/*","/ws/**").permitAll()
 
 				// za svaki drugi zahtev korisnik mora biti autentifikovan
 				.anyRequest().permitAll();

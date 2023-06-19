@@ -1,11 +1,14 @@
 package com.example.demo.service;
 
+import com.example.demo.controller.EngineerController;
 import com.example.demo.model.Privilege;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDetailsImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.GrantedAuthority;
@@ -36,6 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
+	private Logger logger =  LogManager.getLogger(CustomUserDetailsService.class);
 
 	public CustomUserDetailsService() {
 	}
@@ -46,6 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 		User user = userService.findByEmail(email);
 
 		if (user == null) {
+			logger.error("Email doesn't exist");
 			throw new UsernameNotFoundException(String.format("No user found with username '%s'.", email));
 		} else {
 			//return (UserDetails) user;

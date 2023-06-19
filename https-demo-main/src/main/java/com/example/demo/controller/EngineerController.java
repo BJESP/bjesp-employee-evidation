@@ -79,7 +79,7 @@ public class EngineerController {
                 Skill createdSkill = engineerService.UpdateEngineerSkill(engineerSkillDTO);
 
                 if (createdSkill == null) {
-                    logger.error("Skill wasn't updated successfully ");
+                    logger.warn("Skill wasn't updated successfully ");
                     return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                 }
 
@@ -87,7 +87,7 @@ public class EngineerController {
             }
             catch (IllegalArgumentException e)
             {
-                logger.error(e.getMessage()+"during updating engineer skill");
+                logger.warn(e.getMessage()+"during updating engineer skill");
                 return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
             }
 
@@ -387,7 +387,7 @@ public class EngineerController {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
 
-               
+
             logger.info("Created engineer CV");
                 return new ResponseEntity<>(createdCV, HttpStatus.OK);
             }
